@@ -180,6 +180,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\3rdParty\OpenCV3.1\$(PlatformTarget)\v140\lib;$(SolutionDir)lib\3rdParty\tbb\lib\$(PlatformShortName)\v140;$(SolutionDir)lib\3rdParty\boost\$(PlatformTarget)\v140\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -171,7 +171,7 @@ int main (int argc, char **argv)
 	float fx = 0, fy = 0, cx = 0, cy = 0;
 	// Get camera parameters
 	LandmarkDetector::get_camera_params(device, fx, fy, cx, cy, arguments);
-
+  
 	// If cx (optical axis centre) is undefined will use the image size/2 as an estimate
 	bool cx_undefined = false;
 	bool fx_undefined = false;
