@@ -166,6 +166,7 @@ int main (int argc, char **argv)
 	
 	// The modules that are being used for tracking
 	LandmarkDetector::CLNF clnf_model(det_parameters.model_location);	
+  std::cout << "@@@@@@@ model location: " << det_parameters.model_location;
 
 	// Grab camera parameters, if they are not defined (approximate values will be used)
 	float fx = 0, fy = 0, cx = 0, cy = 0;

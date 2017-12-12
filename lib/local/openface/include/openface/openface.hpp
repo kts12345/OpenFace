@@ -18,7 +18,7 @@ namespace openface {
 void O2FACE_CALLCONV set_logger(void* logger);
 
 /// @brief face landmark model init
-void* O2FACE_CALLCONV init_model(const std::string& model_path);
+void* O2FACE_CALLCONV  init_model(std::vector<std::string>& arguments);
 
 /// @brief face landmark model deinit
 void O2FACE_CALLCONV deinit_model(void* model);

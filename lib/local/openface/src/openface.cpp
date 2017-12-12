@@ -121,10 +121,9 @@ void O2FACE_CALLCONV set_logger(void* logger) {
 
 
 /// @brief face landmark model init
-void* O2FACE_CALLCONV  init_model(const std::string& model_path) {
+void* O2FACE_CALLCONV  init_model(std::vector<std::string>& arguments) {
 
-  std::vector<std::string> arguments;
-  arguments.push_back(model_path);
+
   LandmarkDetector::FaceModelParameters parameters(arguments);
 
   // gaze 를 tracking 해야 더 잘찾는 것 같다.
@@ -255,4 +254,3 @@ void O2FACE_CALLCONV  deinit_model(void* model) {
 #ifdef __cplusplus
 }
 #endif
-
