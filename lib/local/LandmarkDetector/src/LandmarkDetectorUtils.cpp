@@ -457,7 +457,7 @@ void crossCorr_m( const cv::Mat_<float>& img, cv::Mat_<double>& img_dft, const c
     //const double blockScale = 4.5;
     //const int minBlockSize = 256;
 
-	int maxDepth = CV_64F;
+	//int maxDepth = CV_64F;
 
 	cv::Size dftsize;
 	
@@ -760,8 +760,8 @@ cv::Matx22d AlignShapesWithScale(cv::Mat_<double>& src, cv::Mat_<double> dst)
 	cv::Mat_<double> aligned = (cv::Mat(cv::Mat(A) * src.t())).t();
 	cv::Mat_<double> offset = dst - aligned;
 
-	double t_x =  cv::mean(offset.col(0))[0];
-	double t_y =  cv::mean(offset.col(1))[0];
+	//double t_x =  cv::mean(offset.col(0))[0];
+	//double t_y =  cv::mean(offset.col(1))[0];
     
 	return A;
 
@@ -985,7 +985,7 @@ vector<cv::Point2d> CalculateVisibleLandmarks(const cv::Mat_<double>& shape2D, c
 vector<cv::Point2d> CalculateAllLandmarks(const cv::Mat_<double>& shape2D)
 {
 
-	int n;
+	int n = 0;
 	vector<cv::Point2d> landmarks;
 
 	if (shape2D.cols == 2)
@@ -1116,7 +1116,7 @@ void Draw(cv::Mat img, const cv::Mat_<double>& shape2D, const cv::Mat_<int>& vis
 			cv::Point featurePoint(cvRound(shape2D.at<double>(i) * (double)draw_multiplier), cvRound(shape2D.at<double>(i + n) * (double)draw_multiplier));
 
 			// A rough heuristic for drawn point size
-			int thickness = 1.0;
+			//int thickness = 1.0;
 			int thickness_2 = 1.0;
 
 			int next_point = i + 1;
@@ -1143,7 +1143,7 @@ void Draw(cv::Mat img, const cv::Mat_<double>& shape2D, const cv::Mat_<int>& vis
 			cv::Point featurePoint(cvRound(shape2D.at<double>(i) * (double)draw_multiplier), cvRound(shape2D.at<double>(i + n) * (double)draw_multiplier));
 
 			// A rough heuristic for drawn point size
-			int thickness = 1.0;
+			//int thickness = 1.0;
 			int thickness_2 = 1.0;
 
 			int next_point = i + 1;
@@ -1160,7 +1160,7 @@ void Draw(cv::Mat img, const cv::Mat_<double>& shape2D, const cv::Mat_<int>& vis
 void Draw(cv::Mat img, const cv::Mat_<double>& shape2D)
 {
 	
-	int n;
+	int n = 0;
 	
 	if(shape2D.cols == 2)
 	{
@@ -1265,7 +1265,7 @@ cv::Vec3d RotationMatrix2Euler(const cv::Matx33d& rotation_matrix)
 	double q2 = (rotation_matrix(0,2) - rotation_matrix(2,0)) / (4.0*q0) ;
 	double q3 = (rotation_matrix(1,0) - rotation_matrix(0,1)) / (4.0*q0) ;
 
-	double t1 = 2.0 * (q0*q2 + q1*q3);
+	//double t1 = 2.0 * (q0*q2 + q1*q3);
 
 	double yaw  = asin(2.0 * (q0*q2 + q1*q3));
 	double pitch= atan2(2.0 * (q0*q1-q2*q3), q0*q0-q1*q1-q2*q2+q3*q3); 

@@ -56,7 +56,11 @@
 using namespace LandmarkDetector;
 
 // A copy constructor
-Patch_experts::Patch_experts(const Patch_experts& other) : patch_scaling(other.patch_scaling), centers(other.centers), svr_expert_intensity(other.svr_expert_intensity), ccnf_expert_intensity(other.ccnf_expert_intensity)
+Patch_experts::Patch_experts(const Patch_experts& other) : 
+  svr_expert_intensity(other.svr_expert_intensity), 
+  ccnf_expert_intensity(other.ccnf_expert_intensity),
+  patch_scaling(other.patch_scaling), 
+  centers(other.centers) 
 {
 
 	// Make sure the matrices are allocated properly

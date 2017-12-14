@@ -66,7 +66,7 @@ void Orthonormalise(cv::Matx33d &R)
 	// This makes sure that the handedness is preserved and no reflection happened
 	// by making sure the determinant is 1 and not -1
 	cv::Mat_<double> W = cv::Mat_<double>::eye(3,3);
-	double d = determinant(X);
+	//double d = determinant(X);
 	W(2,2) = determinant(X);
 	cv::Mat Rt = svd.u*W*svd.vt;
 
@@ -273,9 +273,9 @@ void PDM::ComputeRigidJacobian(const cv::Mat_<float>& p_local, const cv::Vec6d& 
 	float r21 = (float) currRot(1,0);
 	float r22 = (float) currRot(1,1);
 	float r23 = (float) currRot(1,2);
-	float r31 = (float) currRot(2,0);
-	float r32 = (float) currRot(2,1);
-	float r33 = (float) currRot(2,2);
+	//float r31 = (float) currRot(2,0);
+	//float r32 = (float) currRot(2,1);
+	//float r33 = (float) currRot(2,2);
 
 	cv::MatIterator_<float> Jx = Jacob.begin();
 	cv::MatIterator_<float> Jy = Jx + n * 6;
@@ -371,9 +371,9 @@ void PDM::ComputeJacobian(const cv::Mat_<float>& params_local, const cv::Vec6d& 
 	float r21 = (float) currRot(1,0);
 	float r22 = (float) currRot(1,1);
 	float r23 = (float) currRot(1,2);
-	float r31 = (float) currRot(2,0);
-	float r32 = (float) currRot(2,1);
-	float r33 = (float) currRot(2,2);
+	//float r31 = (float) currRot(2,0);
+	//float r32 = (float) currRot(2,1);
+	//float r33 = (float) currRot(2,2);
 
 	cv::MatIterator_<float> Jx =  Jacobian.begin();
 	cv::MatIterator_<float> Jy =  Jx + n * (6 + m);
