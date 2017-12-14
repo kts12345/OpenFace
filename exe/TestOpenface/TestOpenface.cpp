@@ -570,7 +570,7 @@ int main(int argc, char **argv)
     try
     {
       //writerFace = cv::VideoWriter(output_video_files[0], CV_FOURCC(output_codec[0], output_codec[1], output_codec[2], output_codec[3]), 30, captured_image.size(), true);
-      writerFace = cv::VideoWriter("f:\\b.avi", CV_FOURCC(output_codec[0], output_codec[1], output_codec[2], output_codec[3]), 30, captured_image.size(), true);
+      writerFace = cv::VideoWriter(".\\output\\b.avi", CV_FOURCC(output_codec[0], output_codec[1], output_codec[2], output_codec[3]), 30, captured_image.size(), true);
     }
     catch(cv::Exception e)
     {
@@ -699,7 +699,7 @@ int main(int argc, char **argv)
   for (int i=0; i<saved_images.size(); ++i) {
     // 아직도 초기값이라면, 이미지가 없다는 뜻.
     if (saved_info[i].is_saved == true) {
-      cv::imwrite(std::string("f:\\tmp\\") + std::to_string(i) + std::string(".png"), saved_images[i]);
+      cv::imwrite(std::string(".\\output\\") + std::to_string(i) + std::string(".png"), saved_images[i]);
 	  }
   }
 
