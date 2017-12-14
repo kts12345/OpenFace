@@ -608,6 +608,12 @@ int main(int argc, char **argv)
   auto begin = std::chrono::system_clock::now();
   auto end = std::chrono::system_clock::now();
   while (!captured_image.empty()) {    
+
+    if (count % 3 != 0) {
+      count++;
+      continue;
+    }
+
     cv::flip(captured_image, captured_image, 1);
 
     auto prev = prev_info.feature_points_2d.rows;
