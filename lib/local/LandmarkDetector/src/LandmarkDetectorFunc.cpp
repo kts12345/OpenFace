@@ -274,7 +274,7 @@ bool LandmarkDetector::DetectLandmarksInVideo(const cv::Mat_<uchar> &grayscale_i
 			clnf_model.preference_det = cv::Point(-1, -1);
 		}
 
-		bool face_detection_success;
+		bool face_detection_success = false;
 		if(params.curr_face_detector == FaceModelParameters::HOG_SVM_DETECTOR)
 		{
 			double confidence;

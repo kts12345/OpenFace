@@ -66,10 +66,20 @@ CLNF::CLNF(string fname)
 }
 
 // Copy constructor (makes a deep copy of CLNF)
-CLNF::CLNF(const CLNF& other): pdm(other.pdm), params_local(other.params_local.clone()), params_global(other.params_global), detected_landmarks(other.detected_landmarks.clone()),
-	landmark_likelihoods(other.landmark_likelihoods.clone()), patch_experts(other.patch_experts), landmark_validator(other.landmark_validator), face_detector_location(other.face_detector_location),
-	hierarchical_mapping(other.hierarchical_mapping), hierarchical_models(other.hierarchical_models), hierarchical_model_names(other.hierarchical_model_names),
-	hierarchical_params(other.hierarchical_params), eye_model(other.eye_model)
+CLNF::CLNF(const CLNF& other): 
+  pdm(other.pdm), 
+  patch_experts(other.patch_experts), 
+  params_local(other.params_local.clone()), 
+  params_global(other.params_global), 
+  hierarchical_models(other.hierarchical_models), 
+  hierarchical_model_names(other.hierarchical_model_names),
+	hierarchical_mapping(other.hierarchical_mapping), 
+	hierarchical_params(other.hierarchical_params), 
+  face_detector_location(other.face_detector_location),
+  landmark_validator(other.landmark_validator), 
+  eye_model(other.eye_model),
+  detected_landmarks(other.detected_landmarks.clone()),
+	landmark_likelihoods(other.landmark_likelihoods.clone()) 
 {
 	this->detection_success = other.detection_success;
 	this->tracking_initialised = other.tracking_initialised;

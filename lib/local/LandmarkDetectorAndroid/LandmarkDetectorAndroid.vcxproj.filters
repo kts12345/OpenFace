@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="LandmarkDetectorAndroid.cpp" />
+    <ClCompile Include="..\LandmarkDetector\src\CCNF_patch_expert.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LandmarkDetector\src\LandmarkDetectionValidator.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LandmarkDetector\src\LandmarkDetectorFunc.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LandmarkDetector\src\LandmarkDetectorModel.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LandmarkDetector\src\LandmarkDetectorParameters.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LandmarkDetector\src\LandmarkDetectorUtils.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LandmarkDetector\src\Patch_experts.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LandmarkDetector\src\PAW.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LandmarkDetector\src\PDM.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LandmarkDetector\src\stdafx.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LandmarkDetector\src\SVR_patch_expert.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LandmarkDetectorAndroid.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="..\LandmarkDetector\include\CCNF_patch_expert.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LandmarkDetector\include\LandmarkCoreIncludes.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LandmarkDetector\include\LandmarkDetectionValidator.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LandmarkDetector\include\LandmarkDetectorFunc.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LandmarkDetector\include\LandmarkDetectorModel.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LandmarkDetector\include\LandmarkDetectorParameters.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LandmarkDetector\include\LandmarkDetectorUtils.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LandmarkDetector\include\Patch_experts.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LandmarkDetector\include\PAW.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LandmarkDetector\include\PDM.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LandmarkDetector\include\stdafx.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LandmarkDetector\include\SVR_patch_expert.h">
+      <Filter>header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="source">
+      <UniqueIdentifier>{be5f1ff8-e927-469e-b04c-703cd54005d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="header">
+      <UniqueIdentifier>{ac577582-4d28-4ad3-947b-741e9171d6a6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

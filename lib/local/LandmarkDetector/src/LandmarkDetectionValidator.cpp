@@ -83,9 +83,15 @@
 using namespace LandmarkDetector;
 
 // Copy constructor
-DetectionValidator::DetectionValidator(const DetectionValidator& other) : orientations(other.orientations), bs(other.bs), paws(other.paws),
-cnn_subsampling_layers(other.cnn_subsampling_layers), cnn_layer_types(other.cnn_layer_types), cnn_fully_connected_layers_bias(other.cnn_fully_connected_layers_bias),
-cnn_convolutional_layers_bias(other.cnn_convolutional_layers_bias), cnn_convolutional_layers_dft(other.cnn_convolutional_layers_dft)
+DetectionValidator::DetectionValidator(const DetectionValidator& other) : 
+  orientations(other.orientations), 
+  paws(other.paws), 
+  bs(other.bs), 
+  cnn_convolutional_layers_dft(other.cnn_convolutional_layers_dft),
+  cnn_convolutional_layers_bias(other.cnn_convolutional_layers_bias), 
+  cnn_subsampling_layers(other.cnn_subsampling_layers), 
+  cnn_fully_connected_layers_bias(other.cnn_fully_connected_layers_bias), 
+  cnn_layer_types(other.cnn_layer_types) 
 {
 
 	this->validator_type = other.validator_type;
@@ -469,7 +475,7 @@ double DetectionValidator::Check(const cv::Vec3d& orientation, const cv::Mat_<uc
 
 	paws[id].Warp(intensity_img_double, warped, detected_landmarks);	
 	
-	double dec;
+	double dec = 0;
 	if(validator_type == 0)
 	{
 		dec = CheckSVR(warped, id);

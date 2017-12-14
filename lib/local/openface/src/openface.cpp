@@ -46,11 +46,13 @@ void get_face_landmark_3d(cv::Mat_<double>& out,
   }
 }
 
+/*
 cv::Mat_<double> get_landmark_2d_range(const LandmarkDetector::CLNF& clnf_model,
                                        const cv::Range& row_range) {
   cv::Mat landmarks = clnf_model.detected_landmarks.reshape(1, 2).t();
   return landmarks.rowRange(row_range);
 }
+*/
 
 cv::Mat_<double> get_landmark_2d(const LandmarkDetector::CLNF& clnf_model,
   const std::vector<int>& indices) {
@@ -143,43 +145,45 @@ void O2FACE_CALLCONV  deinit_model(void* model) {
 
 
 
-  /// @brief face landmark model deinit
-  ///
-  /// @param[in] model face landmark detect model
-  /// @param[in] image face image
-  /// @param[in] face_size_mm 얼굴 크기, 광대 위치의 얼굴 가로 크기 단위 millimeter
-  /// @param[in] camera_parameter 카메라 정보
-  /// @param[out] 안경 fitting을 위한 정보
-  void O2FACE_CALLCONV  glasses_fitting_info_imple(void* model,
-    cv::Mat& image,
-    double face_size_mm,
-    const CameraParameter& camera_parameter,
-    const DebuggingInfo& debugging_info,
-    FittingInfo& info,
-    bool is_video) {
+/// @brief face landmark model deinit
+///
+/// @param[in] model face landmark detect model
+/// @param[in] image face image
+/// @param[in] face_size_mm 얼굴 크기, 광대 위치의 얼굴 가로 크기 단위 millimeter
+/// @param[in] camera_parameter 카메라 정보
+/// @param[out] 안경 fitting을 위한 정보
+void O2FACE_CALLCONV  glasses_fitting_info_imple(void* model,
+  cv::Mat& image,
+  double face_size_mm,
+  const CameraParameter& camera_parameter,
+  const DebuggingInfo& debugging_info,
+  FittingInfo& info,
+  bool is_video) {
 
   LandmarkDetectInfo* model2 = (LandmarkDetectInfo*)model;
   cv::Mat_<uchar> grayscale_image;
-  if(image.channels() == 3) {
+  if (image.channels() == 3) {
     cv::cvtColor(image, grayscale_image, CV_BGR2GRAY);
   }
   else {
-    grayscale_image = image.clone();        
+    grayscale_image = image.clone();
   }
 
   // The actual facial landmark detection / tracking
   //cv::Mat_<float> depth_image;
-  bool detection_success = LandmarkDetector::DetectLandmarksInVideo(grayscale_image,
-                                                                    //depth_image,
-                                                                    *model2->model,
-                                                                    model2->parameters);
+  //bool detection_success = 
+    LandmarkDetector::DetectLandmarksInVideo(grayscale_image,
+    //depth_image,
+    *model2->model,
+    model2->parameters);
+
   // Visualising the results
   // Drawing the facial landmarks on the face and the bounding box around it if tracking is successful and initialised
   double detection_certainty = model2->model->detection_certainty;
 
   auto pose = LandmarkDetector::GetPose(*(model2->model),
-                                                      camera_parameter.fx, camera_parameter.fy,
-                                                      camera_parameter.cx, camera_parameter.cy);
+    camera_parameter.fx, camera_parameter.fy,
+    camera_parameter.cx, camera_parameter.cy);
 
   if (debugging_info.draw_landmarks)
     LandmarkDetector::Draw(image, *model2->model);
