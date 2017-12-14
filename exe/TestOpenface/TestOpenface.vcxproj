@@ -151,7 +151,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>f:\dev\est\o2_client_third_party\lib\win64;$(SolutionDir)\x64\Release;$(SolutionDir)lib\3rdParty\OpenCV3.1\$(PlatformTarget)\v140\lib;$(SolutionDir)lib\3rdParty\tbb\lib\$(PlatformShortName)\v140;$(SolutionDir)lib\3rdParty\boost\$(PlatformTarget)\v140\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;$(SolutionDir)lib\3rdParty\OpenCV3.1\$(PlatformTarget)\v140\lib;$(SolutionDir)lib\3rdParty\tbb\lib\$(PlatformShortName)\v140;$(SolutionDir)lib\3rdParty\boost\$(PlatformTarget)\v140\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

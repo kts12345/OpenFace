@@ -477,10 +477,18 @@ cv::VideoCapture get_video_capture(const std::vector<std::string>& files, int de
   return std::move(video_capture);
 }
 
-void save_image(float radian, cv::Mat image, float distance,
+struct SavedInfo
+{
+  bool is_saved;
+  cv::Vec3d rotation;
+  cv::Vec3d translation;
+};
+
+void save_image(openface::FittingInfo info, cv::Mat image, float distance,
 	float min_radian, float max_radian,
-	std::vector<float>& saved_radians,
+	std::vector<SavedInfo>& saved_info,
 	std::vector<cv::Mat>& saved_images) {
+  auto radian = info.rotate[1];
 	if (radian < min_radian - distance || radian > max_radian + distance)
 		return;
 
@@ -490,9 +498,12 @@ void save_image(float radian, cv::Mat image, float distance,
 	  exit(0);
     }
   float cur_index_radian = min_radian + index * (distance);
-  if (abs(saved_radians[index] - cur_index_radian) > abs(radian - cur_index_radian)) {
+  auto saved_radian = saved_info[index].rotation[1];
+  if (abs(saved_radian - cur_index_radian) > abs(radian - cur_index_radian)) {
     image.copyTo(saved_images[index]);
-	saved_radians[index] = radian;
+    saved_info[index].is_saved = true;
+    saved_info[index].rotation = info.rotate;
+    saved_info[index].translation = info.translation;
   }
 }
 
@@ -509,12 +520,20 @@ int main(int argc, char **argv)
 {
   std::vector<std::string> arguments = get_arguments(argc, argv);
 
+  // 저장할 이미지 개수
   const int image_count = 15;
+  // 각도 : 최소, 최대 각도
   const float min_radian = -0.5;
   const float max_radian = 0.5;
+  // 15개 이미지가 이미지 사이에 가지는 각도 거리
   float radian_distance = (max_radian - min_radian) / (image_count - 1);
-  auto saved_radians = std::vector<float>(image_count, -100);
+  // 저장할 이미지
   std::vector<cv::Mat> saved_images(image_count);
+  // 15개 이미지의 피팅정보
+  std::vector<SavedInfo> saved_info(image_count);
+  for (int i = 0; i < saved_info.size(); ++i) {
+    saved_info[i].is_saved = false;
+  }
 
   // By default try webcam 0
   int device = 0;
@@ -529,8 +548,8 @@ int main(int argc, char **argv)
   string output_codec;
   get_video_input_output_params(files, out_dummy, output_video_files, output_codec, arguments);
 
-  // Do some grabbing
- // cv::VideoCapture video_capture = cv::VideoCapture( "E:\\dev\\est\\o2_openface\\videos\\0294_02_004_angelina_jolie.avi" );
+  // 파일이 주어져있으면 파일에서, 없으면 webcam 에서 이미지를 가져오는 video capture 를 만듬
+  // cv::VideoCapture video_capture = cv::VideoCapture( "E:\\dev\\est\\o2_openface\\videos\\0294_02_004_angelina_jolie.avi" );
   cv::VideoCapture video_capture = get_video_capture(files, device);
   if (!video_capture.isOpened()) {
     FATAL_STREAM("Failed to open video source");
@@ -544,7 +563,7 @@ int main(int argc, char **argv)
   video_capture >> captured_image;
   captured_image = captured_image.t();
 
-  // saving the videos
+  // saving the videos -> 테스트용 코드, 피쳐 찾은 정보를 추가해서 비디오를 저장함.
   cv::VideoWriter writerFace;
   if (!output_video_files.empty())
   {
@@ -563,9 +582,12 @@ int main(int argc, char **argv)
 
   const int thickness = (int)std::ceil(2.0* ((double)captured_image.cols) / 640.0);
 
+  // 안경이 그려질 이미지
   cv::Mat print_image(captured_image.rows, captured_image.cols, captured_image.type());
 
+  // openface 초기화
   void* model = openface::init_model(arguments);
+  // 카메라 파라미터 초기화
   auto cp = camera_parameters(0, 0, 0, 0, captured_image.cols, captured_image.rows);
 
   INFO_STREAM( "Starting tracking");
@@ -580,6 +602,7 @@ int main(int argc, char **argv)
                    out);
   };
 
+  // 정보를 남기기 이한 각종 변수들
   auto sum_distance = 0;
   double fps = 0, frame_cnt = 0;
   auto begin = std::chrono::system_clock::now();
@@ -592,7 +615,11 @@ int main(int argc, char **argv)
     info.feature_points_2d.copyTo(prev_info.feature_points_2d);
     prev = prev_info.feature_points_2d.rows;
     cur = info.feature_points_2d.rows;
+
+    // openface 에서 피팅 정보를 얻어옴
     openface::glasses_fitting_info(model, captured_image, 200, cp, { false }, info);
+
+    // 디버깅용.
     auto distance = [&]() {
       float res = 0;
       auto prev = prev_info.feature_points_2d.rows;
@@ -603,9 +630,11 @@ int main(int argc, char **argv)
         res += std::sqrt(prev_info.feature_points_2d.at<double>(0) - info.feature_points_2d.at<double>(0));
       return res;
     };
+
+    // 안경 그리기
     make_image(captured_image, info, draw_glasses, print_image);
 
-    // draw feature points
+    // feature points 그리기
     Draw(print_image, info.feature_points_2d);
 
     sum_distance += distance();
@@ -639,9 +668,11 @@ int main(int argc, char **argv)
       writerFace << print_image;
     }
 
-	// save images
-    save_image(info.rotate[1], print_image, radian_distance, min_radian, max_radian,
-		       saved_radians, saved_images);
+	  // 저장할 이미지를 saved_images에 저장함.
+    save_image(info, print_image, radian_distance, min_radian, max_radian,
+		           saved_info, saved_images);
+
+    // 화면에 이미지를 보여줌
     cv::namedWindow("tracking_result", 1);
     cv::imshow("tracking_result", print_image);
   
@@ -651,17 +682,21 @@ int main(int argc, char **argv)
       return(0);
     }
 
+    // 다음 이미지를 얻어옴
     video_capture >> captured_image;
-  captured_image = captured_image.t();
+    captured_image = captured_image.t();
 
     ++count;
   }
 
+  // 15 개 이미지 저장
   for (int i=0; i<saved_images.size(); ++i) {
-    if (saved_radians[i] != -100) {
+    // 아직도 초기값이라면, 이미지가 없다는 뜻.
+    if (saved_info[i].is_saved == true) {
       cv::imwrite(std::string("f:\\tmp\\") + std::to_string(i) + std::string(".png"), saved_images[i]);
-	}
+	  }
   }
+
   openface::deinit_model(model);
 
   return 0;
