@@ -490,8 +490,9 @@ int main(int argc, char **argv)
 
   LandmarkDetector::FaceModelParameters det_parameters(arguments);
 
-  std::string root_path("F:\\dev\\est\\OpenFace\\x64\\Release");
-  profile_module_init((char*)root_path.c_str());
+  std::string root_path("D:/github/OpenFace_fork/x64/Release");
+  auto v = profile_module_init((char*)root_path.c_str());
+  printf("======== v:%d", v);
 
 
   // Get the input output file parameters
@@ -558,7 +559,7 @@ int main(int argc, char **argv)
   // double fps = 0, frame_cnt = 0;
   // auto begin = std::chrono::system_clock::now();
   // auto end = std::chrono::system_clock::now();
-  std::string tmp_image = root_path + "\\tmp\\a.png";
+  std::string tmp_image = root_path + "\\a.png";
   std::string profile_name = "aa";
   while (!captured_image.empty()) {    
 
@@ -580,8 +581,9 @@ int main(int argc, char **argv)
 
     // openface 에서 피팅 정보를 얻어옴
     // openface::glasses_fitting_info(model, captured_image, 200, cp, { false }, info);
-    profile_image_update_file((char*)profile_name.c_str(),
+    v = profile_image_update_file((char*)profile_name.c_str(),
                               (char*)tmp_image.c_str(), 720/2, 1280/2);
+    printf("======== v:%d", v);
 
     // // 디버깅용.
     // auto distance = [&]() {
@@ -652,9 +654,12 @@ int main(int argc, char **argv)
 
     ++count;
   }
-  profile_image_final((char*)profile_name.c_str());
-  profile_image_save((char*)profile_name.c_str(), 200);
-  profile_module_final();
+  v = profile_image_final((char*)profile_name.c_str());
+  printf("======== v:%d", v);
+  v = profile_image_save((char*)profile_name.c_str(), 200);
+  printf("======== v:%d", v);
+  v = profile_module_final();
+  printf("======== v:%d", v);
   return 0;
 }
 

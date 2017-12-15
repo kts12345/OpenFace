@@ -18,6 +18,7 @@ struct O2gModule {
 
 struct FittingInfo
 {
+  // 메모리에 저장되었냐.
   bool is_saved;
 
   /// 위치 정보
@@ -83,6 +84,7 @@ public:
     return !_profile_name.empty();
   }
 
+  // profile_update 가 호출함.
   void save_image(const openface::FittingInfo& info, cv::Mat image) {
     auto radian = info.rotate[1];
   	if (radian < s_min_radian - s_radian_distance ||
@@ -240,11 +242,14 @@ int profile_image_update_file(
   if (captured_image.data == NULL)
     return O2G_ERROR_READ_IMAGE;
 
-  if (false == o2g::g_profile.is_init()) {
-    // profile 초기화
-    o2g::g_profile.init(o2g::g_module_info.root_path,
-                        profile_name,
-                        captured_image.cols, captured_image.rows);
+  // 이 블록이 Start 로 빠질 부분임.
+  {
+    if (false == o2g::g_profile.is_init()) {
+      // profile 초기화
+      o2g::g_profile.init(o2g::g_module_info.root_path,
+        profile_name,
+        captured_image.cols, captured_image.rows);
+    }
   }
 
   // if (0 != o2g::g_profile.profile_name.compare(profile_name))
