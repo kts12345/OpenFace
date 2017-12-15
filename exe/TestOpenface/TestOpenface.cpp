@@ -495,11 +495,12 @@ void save_image(openface::FittingInfo info, cv::Mat image, float distance,
 	int index = (radian - min_radian) / distance;
 	if (index < 0 || index > 14) {
 	  printf("aaaaaaaaaaaaaaaaa");
-	  exit(0);
-    }
+    return;
+  }
   float cur_index_radian = min_radian + index * (distance);
   auto saved_radian = saved_info[index].rotation[1];
-  if (abs(saved_radian - cur_index_radian) > abs(radian - cur_index_radian)) {
+  if (saved_info[index].is_saved == false ||
+      abs(saved_radian - cur_index_radian) > abs(radian - cur_index_radian)) {
     image.copyTo(saved_images[index]);
     saved_info[index].is_saved = true;
     saved_info[index].rotation = info.rotate;
