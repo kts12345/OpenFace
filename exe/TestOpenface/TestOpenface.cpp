@@ -1,4 +1,4 @@
-// TestOpenface.cpp : Defines the entry point for the console application.
+﻿// TestOpenface.cpp : Defines the entry point for the console application.
 //
 
 #define _CRT_SECURE_NO_WARNINGS
@@ -23,6 +23,7 @@
 #include "openface/openface.hpp"
 
 #include "LandmarkDetectorParameters.h"
+#include "o2g.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "openface-vc141-mt-gd.lib")
@@ -477,43 +478,6 @@ cv::VideoCapture get_video_capture(const std::vector<std::string>& files, int de
   return std::move(video_capture);
 }
 
-struct SavedInfo
-{
-  bool is_saved;
-  cv::Vec3d rotation;
-  cv::Vec3d translation;
-};
-
-void save_image(openface::FittingInfo info, cv::Mat image, float distance,
-	float min_radian, float max_radian,
-	std::vector<SavedInfo>& saved_info,
-	std::vector<cv::Mat>& saved_images) {
-  auto radian = info.rotate[1];
-	if (radian < min_radian - distance || radian > max_radian + distance)
-		return;
-
-	int index = (radian - min_radian) / distance;
-	if (index < 0 || index > 14) {
-	  printf("aaaaaaaaaaaaaaaaa");
-    return;
-  }
-  float cur_index_radian = min_radian + index * (distance);
-  auto saved_radian = saved_info[index].rotation[1];
-  if (saved_info[index].is_saved == false ||
-      abs(saved_radian - cur_index_radian) > abs(radian - cur_index_radian)) {
-    image.copyTo(saved_images[index]);
-    saved_info[index].is_saved = true;
-    saved_info[index].rotation = info.rotate;
-    saved_info[index].translation = info.translation;
-  }
-}
-
-int profile_module_init(
-  char* assert_root_path
-);
-
-int profile_module_final();
-
 // Getting a head pose estimate from the currently detected landmarks, with appropriate correction due to orthographic camera issue
 // This is because rotation estimate under orthographic assumption is only correct close to the centre of the image
 // This method returns a corrected pose estimate with respect to world coordinates (Experimental)
@@ -521,28 +485,16 @@ int main(int argc, char **argv)
 {
   std::vector<std::string> arguments = get_arguments(argc, argv);
 
-  // 저장할 이미지 개수
-  const int image_count = 15;
-  // 각도 : 최소, 최대 각도
-  const float min_radian = -0.5;
-  const float max_radian = 0.5;
-  // 15개 이미지가 이미지 사이에 가지는 각도 거리
-  float radian_distance = (max_radian - min_radian) / (image_count - 1);
-  // 저장할 이미지
-  std::vector<cv::Mat> saved_images(image_count);
-  // 15개 이미지의 피팅정보
-  std::vector<SavedInfo> saved_info(image_count);
-  for (int i = 0; i < saved_info.size(); ++i) {
-    saved_info[i].is_saved = false;
-  }
-
   // By default try webcam 0
   int device = 0;
 
   LandmarkDetector::FaceModelParameters det_parameters(arguments);
 
-  // Get the input output file parameters
+  std::string root_path("F:\\dev\\est\\OpenFace\\x64\\Release");
+  profile_module_init((char*)root_path.c_str());
 
+
+  // Get the input output file parameters
   // Some initial parameters that can be overriden from command line  
   std::vector<std::string> files, output_video_files, out_dummy;
   // Indicates that rotation should be with respect to world or camera coordinates
@@ -562,6 +514,7 @@ int main(int argc, char **argv)
 
   cv::Mat captured_image;
   video_capture >> captured_image;
+  // 새로로 긴 이미지는 긴쪽이 가로가 되는 방향으로 돌아가는 문제가 있어서 임시로 이렇게 코딩함.
   captured_image = captured_image.t();
 
   // saving the videos -> 테스트용 코드, 피쳐 찾은 정보를 추가해서 비디오를 저장함.
@@ -580,14 +533,11 @@ int main(int argc, char **argv)
   }
 
 
-
   const int thickness = (int)std::ceil(2.0* ((double)captured_image.cols) / 640.0);
 
   // 안경이 그려질 이미지
   cv::Mat print_image(captured_image.rows, captured_image.cols, captured_image.type());
 
-  // openface 초기화
-  void* model = openface::init_model(arguments);
   // 카메라 파라미터 초기화
   auto cp = camera_parameters(0, 0, 0, 0, captured_image.cols, captured_image.rows);
 
@@ -603,11 +553,13 @@ int main(int argc, char **argv)
                    out);
   };
 
-  // 정보를 남기기 이한 각종 변수들
-  auto sum_distance = 0;
-  double fps = 0, frame_cnt = 0;
-  auto begin = std::chrono::system_clock::now();
-  auto end = std::chrono::system_clock::now();
+  // // 정보를 남기기 이한 각종 변수들
+  // auto sum_distance = 0;
+  // double fps = 0, frame_cnt = 0;
+  // auto begin = std::chrono::system_clock::now();
+  // auto end = std::chrono::system_clock::now();
+  std::string tmp_image = root_path + "\\tmp\\a.png";
+  std::string profile_name = "aa";
   while (!captured_image.empty()) {    
 
     if (count % 3 != 0) {
@@ -617,67 +569,72 @@ int main(int argc, char **argv)
 
     cv::flip(captured_image, captured_image, 1);
 
-    auto prev = prev_info.feature_points_2d.rows;
-    auto cur = info.feature_points_2d.rows;
-    info.feature_points_2d.copyTo(prev_info.feature_points_2d);
-    prev = prev_info.feature_points_2d.rows;
-    cur = info.feature_points_2d.rows;
+    // auto prev = prev_info.feature_points_2d.rows;
+    // auto cur = info.feature_points_2d.rows;
+    // info.feature_points_2d.copyTo(prev_info.feature_points_2d);
+    // prev = prev_info.feature_points_2d.rows;
+    // cur = info.feature_points_2d.rows;
+
+    // tmp에 이미지 저장
+    cv::imwrite(tmp_image, captured_image);
 
     // openface 에서 피팅 정보를 얻어옴
-    openface::glasses_fitting_info(model, captured_image, 200, cp, { false }, info);
+    // openface::glasses_fitting_info(model, captured_image, 200, cp, { false }, info);
+    profile_image_update_file((char*)profile_name.c_str(),
+                              (char*)tmp_image.c_str(), 720/2, 1280/2);
 
-    // 디버깅용.
-    auto distance = [&]() {
-      float res = 0;
-      auto prev = prev_info.feature_points_2d.rows;
-      auto cur = info.feature_points_2d.rows;
-      if (prev_info.feature_points_2d.rows != info.feature_points_2d.rows)
-        return res;
-      for (int i = 0; i < info.feature_points_2d.rows; ++i)
-        res += std::sqrt(prev_info.feature_points_2d.at<double>(0) - info.feature_points_2d.at<double>(0));
-      return res;
-    };
+    // // 디버깅용.
+    // auto distance = [&]() {
+    //   float res = 0;
+    //   auto prev = prev_info.feature_points_2d.rows;
+    //   auto cur = info.feature_points_2d.rows;
+    //   if (prev_info.feature_points_2d.rows != info.feature_points_2d.rows)
+    //     return res;
+    //   for (int i = 0; i < info.feature_points_2d.rows; ++i)
+    //     res += std::sqrt(prev_info.feature_points_2d.at<double>(0) - info.feature_points_2d.at<double>(0));
+    //   return res;
+    // };
 
-    // 안경 그리기
-    make_image(captured_image, info, draw_glasses, print_image);
+    // // 안경 그리기
+    // make_image(captured_image, info, draw_glasses, print_image);
 
-    // feature points 그리기
-    Draw(print_image, info.feature_points_2d);
+    // // feature points 그리기
+    // Draw(print_image, info.feature_points_2d);
 
-    sum_distance += distance();
+    // sum_distance += distance();
 
-    auto now = std::chrono::system_clock::now();
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - begin).count() > 1000 &&
-        count != last_count) {
-      end = std::chrono::system_clock::now();
-      sum_distance = 0;
-      double duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-      fps =  double(1000.0) / (duration_ms / (count - last_count));
-      frame_cnt = count - last_count;
-      last_count = count;
-      begin = std::chrono::system_clock::now();
-    }
+    // auto now = std::chrono::system_clock::now();
+    // if (std::chrono::duration_cast<std::chrono::milliseconds>(now - begin).count() > 1000 &&
+    //     count != last_count) {
+    //   end = std::chrono::system_clock::now();
+    //   sum_distance = 0;
+    //   double duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+    //   fps =  double(1000.0) / (duration_ms / (count - last_count));
+    //   frame_cnt = count - last_count;
+    //   last_count = count;
+    //   begin = std::chrono::system_clock::now();
+    // }
 
-    char buf[255];
-    //std::sprintf(buf, "distance:%.2f", sum_distance/100.0);
-    //cv::putText(print_image, buf, cv::Point(10, 50), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0));
-    std::sprintf(buf, "fps:%.2f", fps);
-    cv::putText(print_image, buf, cv::Point(10, 70), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0));
-    std::sprintf(buf, "frame_cnt:%d", count);
-    cv::putText(print_image, buf, cv::Point(10, 50), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0));
-    std::sprintf(buf, "certainty:%.2f", info.detection_certainty);
-    cv::putText(print_image, buf, cv::Point(10, 90), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0));
+    // char buf[255];
+    // //std::sprintf(buf, "distance:%.2f", sum_distance/100.0);
+    // //cv::putText(print_image, buf, cv::Point(10, 50), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0));
+    // std::sprintf(buf, "fps:%.2f", fps);
+    // cv::putText(print_image, buf, cv::Point(10, 70), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0));
+    // std::sprintf(buf, "frame_cnt:%d", count);
+    // cv::putText(print_image, buf, cv::Point(10, 50), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0));
+    // std::sprintf(buf, "certainty:%.2f", info.detection_certainty);
+    // cv::putText(print_image, buf, cv::Point(10, 90), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0));
 
-      
-    // output the tracked video
-    if (!output_video_files.empty())
-    {
-      writerFace << print_image;
-    }
+    //   
+    // // output the tracked video
+    // if (!output_video_files.empty())
+    // {
+    //   writerFace << print_image;
+    // }
 
-	  // 저장할 이미지를 saved_images에 저장함.
-    save_image(info, print_image, radian_distance, min_radian, max_radian,
-		           saved_info, saved_images);
+	  // // 저장할 이미지를 saved_images에 저장함.
+    // // save_image(info, print_image, radian_distance, min_radian, max_radian,
+		// //            saved_info, saved_images);
 
     // 화면에 이미지를 보여줌
     cv::namedWindow("tracking_result", 1);
@@ -695,17 +652,9 @@ int main(int argc, char **argv)
 
     ++count;
   }
-
-  // 15 개 이미지 저장
-  for (int i=0; i<saved_images.size(); ++i) {
-    // 아직도 초기값이라면, 이미지가 없다는 뜻.
-    if (saved_info[i].is_saved == true) {
-      cv::imwrite(std::string(".\\output\\") + std::to_string(i) + std::string(".png"), saved_images[i]);
-	  }
-  }
-
-  openface::deinit_model(model);
-
+  profile_image_final((char*)profile_name.c_str());
+  profile_image_save((char*)profile_name.c_str(), 200);
+  profile_module_final();
   return 0;
 }
 

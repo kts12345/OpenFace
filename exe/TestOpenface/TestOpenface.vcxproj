@@ -160,10 +160,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LandmarkDetectorParameters.cpp" />
+    <ClCompile Include="o2g.cpp" />
     <ClCompile Include="TestOpenface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LandmarkDetectorParameters.h" />
+    <ClInclude Include="o2g.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
