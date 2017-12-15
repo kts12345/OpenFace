@@ -144,7 +144,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\o2_client_third_party\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)lib\local\openface\include;$(SolutionDir)lib\local\LandmarkDetector\include;$(SolutionDir)lib\3rdParty\OpenCV3.1\include\opencv;$(SolutionDir)lib\3rdParty\OpenCV3.1\include;$(SolutionDir)lib\3rdParty\tbb\include;$(SolutionDir)lib\3rdParty\dlib\include\dlib\..;$(SolutionDir)lib\3rdParty\boost;$(SolutionDir)lib\3rdParty\boost\boost</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
