@@ -490,7 +490,7 @@ int main(int argc, char **argv)
 
   LandmarkDetector::FaceModelParameters det_parameters(arguments);
 
-  std::string root_path("D:/github/OpenFace_fork/x64/Release");
+  std::string root_path("F:/dev/est/OpenFace/x64/Release");
   auto v = profile_module_init((char*)root_path.c_str());
   printf("======== v:%d", v);
 
@@ -561,6 +561,8 @@ int main(int argc, char **argv)
   // auto end = std::chrono::system_clock::now();
   std::string tmp_image = root_path + "\\a.png";
   std::string profile_name = "aa";
+  v = profile_image_start((char*)profile_name.c_str(), 0, (char*)tmp_image.c_str(), 1);
+  printf("======== v:%d", v);
   while (!captured_image.empty()) {    
 
     if (count % 3 != 0) {
@@ -656,7 +658,7 @@ int main(int argc, char **argv)
   }
   v = profile_image_final((char*)profile_name.c_str());
   printf("======== v:%d", v);
-  v = profile_image_save((char*)profile_name.c_str(), 200);
+  v = profile_image_save((char*)profile_name.c_str());
   printf("======== v:%d", v);
   v = profile_module_final();
   printf("======== v:%d", v);

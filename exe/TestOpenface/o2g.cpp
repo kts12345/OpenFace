@@ -9,11 +9,66 @@
 
 #include "o2g.h"
 
+
 namespace o2g {
 
-struct O2gModule {
-  std::string root_path;
-  void* model;
+class O2gModule {
+public:
+  O2gModule() {
+    _is_init = false;
+    _model = nullptr;
+  }
+  void clear() {
+    if (false == _is_init) return;
+
+    _is_init = false;
+    _root_path.clear();
+    if (_model != nullptr) {
+      openface::deinit_model(_model);
+      _model = nullptr;
+    }
+  }
+  int init(std::string root_path) {
+    // 이미 초기화 되어 있음
+    if (true == _is_init)
+      return O2G_ERROR_SUCCESS;
+
+    if (false == boost::filesystem::exists(root_path))
+      return O2G_ERROR_INVALID_ROOT_PATH;
+
+    std::string model_path = root_path;
+    model_path += "/fitting_info/model/main_clm_general.txt";
+    if (false == boost::filesystem::exists(model_path))
+      return O2G_ERROR_NO_MODEL_INFO;
+
+    std::vector<std::string> arguments;
+    arguments.push_back(root_path);
+    arguments.push_back("-mloc");
+    arguments.push_back(model_path);
+    arguments.push_back("-gaze");
+    _model = openface::init_model(arguments);;
+
+    _root_path = root_path;
+
+    _is_init = true;
+
+    return O2G_ERROR_SUCCESS;
+  }
+  bool is_init() {
+    return _is_init;
+  }
+  const std::string& root_path() {
+    return _root_path;
+  }
+  void* model() {
+    return _model;
+  }
+
+private:
+  bool _is_init;
+  std::string _root_path;
+  void* _model;
+
 };
 
 struct FittingInfo
@@ -63,25 +118,36 @@ openface::CameraParameter camera_parameters(float fx = 0, float fy = 0,
 class O2gProfile {
 public:
   void clear() {
-    _root_path.clear();
     _profile_name.clear();
+    _root_path.clear();
     _fitting_info.clear();
     _image_cols = 0;
     _image_rows = 0;
+    _fov = 0;
   }
 
-  void init(std::string root_path, std::string profile_name, int cols, int rows) {
+  void init(std::string root_path, std::string profile_name, int cols, int rows,
+            float camera_fov, int face_size_hint) {
     _root_path = root_path;
-    _profile_name = profile_name;
     _fitting_info.clear();
     _fitting_info.resize(s_image_count);
     _image_cols = cols;
     _image_rows = rows;
+    _fov = camera_fov;
+    _face_size_hint = face_size_hint;
 
+    // TODO snow : camera parameter 를 cx, cy, fx, fy 를
+    //             아래 함수가 아닌 fov를 이용해서 만들도록 변경해야 함.
     _cp = camera_parameters(0, 0, 0, 0, cols, rows);
+
+    _profile_name = profile_name;
   }
   bool is_init() {
     return !_profile_name.empty();
+  }
+
+  const std::string& profile_name() {
+    return _profile_name;
   }
 
   // profile_update 가 호출함.
@@ -92,8 +158,9 @@ public:
   		return;
 
   	int index = (radian - s_min_radian) / s_radian_distance;
-  	if (index < 0 || index > 14) {
-  	  printf("aaaaaaaaaaaaaaaaa");
+    // 이런 일은 생기지 않지만.. 한 번 더 남겨둔다.
+  	if (index < 0 || index > (_fitting_info.size() - 1)) {
+  	  printf("something wrong, in index");
       return;
     }
     float cur_index_radian = s_min_radian + index * (s_radian_distance);
@@ -119,28 +186,39 @@ public:
     return true;
   }
 
-  bool save_to_file() {
+  int save_to_file() {
     if (false == boost::filesystem::exists(_root_path))
       return O2G_ERROR_INVALID_ROOT_PATH;
 
     std::string path = _root_path + "\\profile";
     if (false == boost::filesystem::exists(path))
       boost::filesystem::create_directory(path);
-    path = path + "\\" + _profile_name;
-    if (true == boost::filesystem::exists(path))
+    std::string profile_path = path + "\\" + _profile_name;
+    if (true == boost::filesystem::exists(profile_path))
       return O2G_ERROR_ALREADY_EXIST_PROFILE;
 
     // 이번 프로파일을 저장할 폴더를 만든다.
-    boost::filesystem::create_directory(path);
+    boost::filesystem::create_directory(profile_path);
 
     std::string file_name;
     for (int i = 0; i < _fitting_info.size(); ++i) {
       if (_fitting_info[i].is_saved == true) {
         file_name = std::to_string(i) + ".png";
-        cv::imwrite(path + "\\" + file_name, _fitting_info[i].image);
+        if (false == cv::imwrite(profile_path + "\\" + file_name, _fitting_info[i].image)) {
+          // 디렉토리를 삭제한다.
+          boost::system::error_code ec;
+          boost::filesystem::remove_all(profile_path, ec);
+          if (ec) {
+            // 디렉토리 삭제에 실패함
+            // 하지만 뭔가 더 할 수 있는 것은 없음.
+            printf("fail to delete directory");
+            printf(profile_path.c_str());
+          }
+          return O2G_ERROR_FAIL_TO_SAVE_IMAGE;
+        }
 	    }
     }
-    return true;
+    return O2G_ERROR_SUCCESS;
   }
 
 private:
@@ -168,9 +246,11 @@ private:
 
   int _image_cols;
   int _image_rows;
+  float _fov;
+  int _face_size_hint;
 };
 
-static O2gModule  g_module_info;
+static O2gModule  g_module;
 static O2gProfile g_profile;
 
 const float O2gProfile::s_min_radian = -0.5;
@@ -188,23 +268,10 @@ const float O2gProfile::s_radian_distance = (O2gProfile::s_max_radian -
 int profile_module_init(
   char* root_path) {
 
-  std::string model_path = root_path;
-  model_path += "/fitting_info/model/main_clm_general.txt";
-  if (false == o2g::g_module_info.root_path.empty())
-    return O2G_ERROR_ALREADY_INIT;
-  if (false == boost::filesystem::exists(root_path))
-    return O2G_ERROR_INVALID_ROOT_PATH;
-  if (false == boost::filesystem::exists(model_path))
-    return O2G_ERROR_NO_MODEL_INFO;
-
-  std::vector<std::string> arguments;
-  arguments.push_back("-mloc");
-  arguments.push_back(model_path);
-  arguments.push_back("-gaze");
-
-  // g_module_info 초기화
-  o2g::g_module_info.root_path = root_path;
-  o2g::g_module_info.model = openface::init_model(arguments);;
+  // module 초기화
+  int result = o2g::g_module.init(root_path);
+  if (result != O2G_ERROR_SUCCESS)
+    return result;
 
   // profile 리셋
   o2g::g_profile.clear();
@@ -214,14 +281,35 @@ int profile_module_init(
 
 /// 피팅 라이브러리 모듈 종료
 int profile_module_final() {
-  if (o2g::g_module_info.root_path.empty())
-    return O2G_ERROR_SUCCESS;
-
-  openface::deinit_model(o2g::g_module_info.model);
-  o2g::g_module_info.model = nullptr;
-  o2g::g_module_info.root_path.clear();
 
   o2g::g_profile.clear();
+  o2g::g_module.clear();
+
+  return O2G_ERROR_SUCCESS;
+}
+
+int profile_image_start(
+  char* profile_name,
+  float camera_fov,
+  char* image_temp_path,
+  int face_size_hint) {
+
+  if (false == o2g::g_module.is_init())
+    return O2G_ERROR_MODULE_NO_INIT;
+  if (true == o2g::g_profile.is_init())
+    return O2G_ERROR_PROFILE_ALREADY_INIT;
+  if (false == boost::filesystem::exists(image_temp_path))
+    return O2G_ERROR_NO_IMAGE;
+
+  cv::Mat captured_image = cv::imread(image_temp_path, -1);
+  if (captured_image.data == NULL)
+    return O2G_ERROR_READ_IMAGE;
+
+  // profile 초기화
+  o2g::g_profile.init(o2g::g_module.root_path(),
+                      profile_name,
+                      captured_image.cols, captured_image.rows,
+                      camera_fov, face_size_hint);
 
   return O2G_ERROR_SUCCESS;
 }
@@ -233,30 +321,24 @@ int profile_image_update_file(
   int face_outline_center_x,
   int face_outline_center_y) {
 
-  if (o2g::g_module_info.root_path.empty())
+  if (false == o2g::g_module.is_init())
     return O2G_ERROR_MODULE_NO_INIT;
+  if (false == o2g::g_profile.is_init())
+    return O2G_ERROR_PROFILE_NO_INIT;
   if (false == boost::filesystem::exists(image_temp_path))
     return O2G_ERROR_NO_IMAGE;
+  if (0 != o2g::g_profile.profile_name().compare(profile_name))
+    return O2G_ERROR_WRONG_PROFILE_NAME;
 
   cv::Mat captured_image = cv::imread(image_temp_path, -1);
   if (captured_image.data == NULL)
     return O2G_ERROR_READ_IMAGE;
 
-  // 이 블록이 Start 로 빠질 부분임.
-  {
-    if (false == o2g::g_profile.is_init()) {
-      // profile 초기화
-      o2g::g_profile.init(o2g::g_module_info.root_path,
-        profile_name,
-        captured_image.cols, captured_image.rows);
-    }
-  }
-
-  // if (0 != o2g::g_profile.profile_name.compare(profile_name))
-  //   return O2G_ERROR_WRONG_PROFILE_NAME;
   openface::FittingInfo info;
   // openface 에서 피팅 정보를 얻어옴
-  openface::glasses_fitting_info(o2g::g_module_info.model, captured_image,
+  // TODO snow : 200 머리크기 하드코딩 되어있는 것 제거
+  //             glasses_fitting_info 하위에서 현재 사용하지 않고 있음.
+  openface::glasses_fitting_info(o2g::g_module.model(), captured_image,
                                  200, o2g::g_profile.cp(), { false }, info);
   o2g::g_profile.save_image(info, captured_image);
 
@@ -266,7 +348,8 @@ int profile_image_update_file(
 /// 이미지 제공 끝났음.
 int profile_image_final(
   char* profile_name) {
-  // check all image is saved
+  if (false == o2g::g_module.is_init())
+    return O2G_ERROR_MODULE_NO_INIT;
   if (false == o2g::g_profile.is_init())
     return O2G_ERROR_PROFILE_NO_INIT;
   if (false == o2g::g_profile.is_saved_all())
@@ -277,13 +360,17 @@ int profile_image_final(
 
 /// 프로필 이미지 결과 저장
 int profile_image_save(
-  char* profile_name,
-  int face_size_hint) {
-
+  char* profile_name) {
+  if (false == o2g::g_module.is_init())
+    return O2G_ERROR_MODULE_NO_INIT;
   if (false == o2g::g_profile.is_init())
     return O2G_ERROR_MODULE_NO_INIT;
+  if (false == o2g::g_profile.is_saved_all())
+    return O2G_ERROR_FAIL_TO_MAKE_PROFILE;
 
-  o2g::g_profile.save_to_file();
+  auto r = o2g::g_profile.save_to_file();
+  if (O2G_ERROR_SUCCESS != r)
+    return r;
   o2g::g_profile.clear();
   return O2G_ERROR_SUCCESS;
 }
