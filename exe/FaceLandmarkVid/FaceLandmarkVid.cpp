@@ -121,6 +121,11 @@ void visualise_tracking(cv::Mat& captured_image, const LandmarkDetector::CLNF& f
 		{
 			GazeAnalysis::DrawGaze(captured_image, face_model, gazeDirection0, gazeDirection1, fx, fy, cx, cy);
 		}
+    char buf[255];
+    std::sprintf(buf, "rotate, pitch:%.2f, yaw:%.2f, roll:%.2f", pose_estimate_to_draw[3], pose_estimate_to_draw[4], pose_estimate_to_draw[5]);
+    cv::putText(captured_image, buf, cv::Point(10, 30), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0));
+    std::sprintf(buf, "translation, x:%.2f, y:%.2f, z:%.2f", pose_estimate_to_draw[0], pose_estimate_to_draw[1], pose_estimate_to_draw[2]);
+    cv::putText(captured_image, buf, cv::Point(10, 50), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0));
 	}
 
 	// Work out the framerate
@@ -281,6 +286,7 @@ int main (int argc, char **argv)
 		INFO_STREAM( "Starting tracking");
 		while(!captured_image.empty())
 		{		
+      cv::flip(captured_image, captured_image, 1);
 
 			// Reading the images
 			cv::Mat_<uchar> grayscale_image;
