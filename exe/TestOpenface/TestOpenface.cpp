@@ -20,7 +20,7 @@
 #include "boost/filesystem.hpp"
 
 // openface lib
-#include "openface/openface.hpp"
+//#include "openface/openface.hpp"
 
 #include "LandmarkDetectorParameters.h"
 #include "o2g.h"
@@ -204,7 +204,8 @@ int main(int argc, char **argv)
 
   LandmarkDetector::FaceModelParameters det_parameters(arguments);
 
-  std::string root_path("F:/dev/est/OpenFace/x64/Release");
+  auto root_path = boost::filesystem::system_complete(argv[0]).parent_path().string();
+  std::cout << "root_path :" << root_path;
   auto v = profile_module_init((char*)root_path.c_str());
   printf("======== v:%d", v);
 

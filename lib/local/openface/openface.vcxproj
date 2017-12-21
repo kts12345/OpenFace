@@ -213,8 +213,7 @@ xcopy /I /E /Y /D "$(OutDir)$(TargetName).pdb" "$(SolutionDir)..\o2_client_third
     </Lib>
     <PostBuildEvent>
       <Command>
-
-</Command>
+      </Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -225,9 +224,14 @@ xcopy /I /E /Y /D "$(OutDir)$(TargetName).pdb" "$(SolutionDir)..\o2_client_third
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\openface\openface.hpp" />
+    <ClInclude Include="include\o2g.h" />
+    <ClInclude Include="src\o2g_module.hpp" />
+    <ClInclude Include="src\o2g_profile.hpp" />
+    <ClInclude Include="src\o2g_util.hpp" />
+    <ClInclude Include="src\openface.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\o2g.cpp" />
     <ClCompile Include="src\openface.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

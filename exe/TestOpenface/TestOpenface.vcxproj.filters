@@ -5,14 +5,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LandmarkDetectorParameters.cpp" />
-    <ClCompile Include="o2g.cpp" />
     <ClCompile Include="TestOpenface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LandmarkDetectorParameters.h" />
-    <ClInclude Include="o2g.h" />
-    <ClInclude Include="o2g_module.hpp" />
-    <ClInclude Include="o2g_profile.hpp" />
-    <ClInclude Include="o2g_util.hpp" />
   </ItemGroup>
 </Project>
