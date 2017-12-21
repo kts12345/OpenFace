@@ -166,6 +166,9 @@
   <ItemGroup>
     <ClInclude Include="LandmarkDetectorParameters.h" />
     <ClInclude Include="o2g.h" />
+    <ClInclude Include="o2g_module.hpp" />
+    <ClInclude Include="o2g_profile.hpp" />
+    <ClInclude Include="o2g_util.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

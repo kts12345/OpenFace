@@ -1,4 +1,6 @@
-﻿
+﻿#ifndef __O2G_HPP__
+#define __O2G_HPP__
+
 
 /// 피팅 라이브러리 api 입니다.
 ///
@@ -143,3 +145,4 @@ int profile_image_save(
   char* profile_name);
 
 
+#endif  // __O2G_HPP__
