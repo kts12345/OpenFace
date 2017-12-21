@@ -219,7 +219,8 @@ void DrawGlassesBox(const openface::FittingInfo& fitting_info,
 
   double glasses_center[] = { 0, -10*fs, -5*fs };
   cv::Mat_<double> box = cv::Mat(10, 3, CV_64F, boxVerts).clone();
-  for (auto i = 0; i < std::size(glasses_center); ++i)
+
+  for (auto i = 0; i < sizeof(glasses_center)/sizeof(glasses_center[0]); ++i)
   {
     auto col = box.col(i);
     col = col + (fitting_info.face_feature_point[i] + glasses_center[i]);

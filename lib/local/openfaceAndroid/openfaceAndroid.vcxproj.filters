@@ -2,23 +2,32 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="openfaceAndroid.cpp" />
+    <ClCompile Include="..\openface\src\o2g.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="..\openface\src\openface.cpp">
-      <Filter>source</Filter>
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="openfaceAndroid.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="..\openface\include\openface\openface.hpp">
-      <Filter>header</Filter>
+    <ClInclude Include="..\openface\src\o2g_module.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\openface\src\o2g_profile.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\openface\src\o2g_util.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\openface\src\openface.hpp">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="source">
-      <UniqueIdentifier>{16dd594f-cb27-4495-89ea-c3d640ac0471}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="header">
-      <UniqueIdentifier>{01412778-1fda-4fef-9921-48e556edff07}</UniqueIdentifier>
+    <Filter Include="src">
+      <UniqueIdentifier>{19d1ef05-efd0-495b-8442-e16a7a3c8b8d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

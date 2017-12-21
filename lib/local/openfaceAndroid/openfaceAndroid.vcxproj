@@ -158,11 +158,15 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\openface\src\o2g.cpp" />
     <ClCompile Include="..\openface\src\openface.cpp" />
     <ClCompile Include="openfaceAndroid.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\openface\include\openface\openface.hpp" />
+    <ClInclude Include="..\openface\src\o2g_module.hpp" />
+    <ClInclude Include="..\openface\src\o2g_profile.hpp" />
+    <ClInclude Include="..\openface\src\o2g_util.hpp" />
+    <ClInclude Include="..\openface\src\openface.hpp" />
     <ClInclude Include="openfaceAndroid.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

@@ -1,5 +1,5 @@
 ﻿
-#include "openface/openface.hpp"
+#include "openface.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
