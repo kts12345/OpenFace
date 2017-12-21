@@ -20,9 +20,6 @@
 #include "boost/filesystem.hpp"
 
 // openface lib
-//#include "openface/openface.hpp"
-
-#include "LandmarkDetectorParameters.h"
 #include "o2g.h"
 
 #ifdef _DEBUG
@@ -202,7 +199,6 @@ int main(int argc, char **argv)
   // By default try webcam 0
   int device = 0;
 
-  LandmarkDetector::FaceModelParameters det_parameters(arguments);
 
   auto root_path = boost::filesystem::system_complete(argv[0]).parent_path().string();
   std::cout << "root_path :" << root_path;
@@ -214,7 +210,7 @@ int main(int argc, char **argv)
   // Some initial parameters that can be overriden from command line  
   std::vector<std::string> files, output_video_files, out_dummy;
   // Indicates that rotation should be with respect to world or camera coordinates
-  string output_codec;
+  std::string output_codec;
   get_video_input_output_params(files, out_dummy, output_video_files, output_codec, arguments);
 
   // 파일이 주어져있으면 파일에서, 없으면 webcam 에서 이미지를 가져오는 video capture 를 만듬
