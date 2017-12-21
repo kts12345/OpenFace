@@ -15,7 +15,7 @@
 #include "LandmarkCoreIncludes.h"
 
   // for test code imshow
-#include "opencv2/highgui/highgui.hpp"
+//#include "opencv2/highgui/highgui.hpp"
 
 namespace {
 

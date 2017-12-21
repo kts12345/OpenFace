@@ -232,7 +232,7 @@ private:
   int _face_size_hint;
   int _frame_count;
 
-  cv::VideoWriter _video_writer;
+  //cv::VideoWriter _video_writer;
 };
 
 }  // end namespace o2g
