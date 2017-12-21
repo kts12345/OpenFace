@@ -159,11 +159,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LandmarkDetectorParameters.cpp" />
     <ClCompile Include="TestOpenface.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="LandmarkDetectorParameters.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
