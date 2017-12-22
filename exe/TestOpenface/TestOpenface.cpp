@@ -253,8 +253,10 @@ int main(int argc, char **argv)
   auto end = std::chrono::system_clock::now();
   int count = 0;
 
-  std::string tmp_image = root_path + "\\a.png";
+  std::string tmp_image = root_path + "\\a.bmp";
   std::string profile_name = "aa";
+  boost::system::error_code ec;
+  boost::filesystem::remove_all(root_path+ "/profile/aa", ec);
   v = profile_image_start((char*)profile_name.c_str(), 0, (char*)tmp_image.c_str(), 1);
   printf("======== v:%d", v);
   while (!captured_image.empty()) {    

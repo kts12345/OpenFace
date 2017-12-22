@@ -71,6 +71,7 @@ int profile_image_start(
                       captured_image.cols, captured_image.rows,
                       camera_fov, face_size_hint);
 
+   std::cout << "cy " << g_profile.cp().cy << ", fy:" << g_profile.cp().fy;
   return O2G_ERROR_SUCCESS;
 }
 

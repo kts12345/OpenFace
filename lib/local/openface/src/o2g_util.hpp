@@ -338,6 +338,8 @@ void make_image(cv::Mat captured_image,
 openface::CameraParameter camera_parameters(float fx = 0, float fy = 0,
                                             float cx = 0, float cy = 0,
                                             int cols = 640, int rows = 480) {
+
+  std::cout << "cols:" << cols << ", rows:" << rows;
   bool cx_undefined = false;
   bool fx_undefined = false;
   if (cx == 0 || cy == 0)

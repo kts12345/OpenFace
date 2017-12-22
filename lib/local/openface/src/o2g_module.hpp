@@ -39,8 +39,9 @@ public:
 
     std::string model_path = root_path;
     model_path += "/fitting_info/model/main_clm_general.txt";
-    if (false == boost::filesystem::exists(model_path))
+    if (false == boost::filesystem::exists(model_path)) {
       return O2G_ERROR_NO_MODEL_INFO;
+    }
 
     std::vector<std::string> arguments;
     arguments.push_back(root_path);

@@ -125,6 +125,13 @@ void O2FACE_CALLCONV set_logger(void* logger) {
 /// @brief face landmark model init
 void* O2FACE_CALLCONV  init_model(std::vector<std::string>& arguments) {
 
+  g_logger("--------------------this is init model");
+  g_logger("this is init model=================");
+  g_logger("--------------------this is init model");
+  g_logger("argumnets[0], [1], [2]");
+  g_logger(arguments[0].c_str());
+  g_logger(arguments[1].c_str());
+  g_logger(arguments[2].c_str());
 
   LandmarkDetector::FaceModelParameters parameters(arguments);
 

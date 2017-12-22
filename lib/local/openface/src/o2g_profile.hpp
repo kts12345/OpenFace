@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <cmath>
 
 #include "boost/filesystem.hpp"
 
@@ -14,6 +15,9 @@
 #include "o2g_util.hpp"
 #include "o2g.h"
 
+#ifndef	M_PI
+#define	M_PI	3.14159265358979323846
+#endif
 
 namespace o2g {
 
@@ -25,6 +29,8 @@ struct FittingInfo
   /// 위치 정보
   cv::Vec3d rotation;
   cv::Vec3d translation;
+  cv::Vec3d face_feature_point;
+
   /// 사진
   cv::Mat image;
 
@@ -116,6 +122,7 @@ public:
       _fitting_info[index].is_saved = true;
       _fitting_info[index].rotation = info.rotate;
       _fitting_info[index].translation = info.translation;
+      _fitting_info[index].face_feature_point = info.face_feature_point;
       _fitting_info[index].saved_time = std::chrono::system_clock::now();
       _fitting_info[index].frame_count = _frame_count;
     }
@@ -136,14 +143,49 @@ public:
     return true;
   }
 
+  cv::Vec3d get_glass_center_world_position(const FittingInfo& fitting_info) {
+
+    //double glasses_center[] = { 0, -10, -5 }; // 기준
+    double glasses_center[] = { 0, +1.5f, -5 };
+
+    double boxVerts[] = { 0, 0, 0 };
+
+    cv::Mat_<double> box = cv::Mat(10, 3, CV_64F, boxVerts).clone();
+    for (auto i = 0; i < 3; ++i)
+    {
+      auto col = box.col(i);
+      col = col + (fitting_info.face_feature_point[i] + glasses_center[i]);
+    }
+
+    cv::Matx33d rot = Euler2RotationMatrix(cv::Vec3d(fitting_info.rotation[0],
+      fitting_info.rotation[1],
+      fitting_info.rotation[2]));
+    cv::Mat_<double> rotBox;
+
+    // Rotate the box
+    rotBox = cv::Mat(rot) * box.t();
+    rotBox = rotBox.t();
+
+    // Move the bounding box to head position
+    rotBox.col(0) = rotBox.col(0) + fitting_info.translation[0];
+    rotBox.col(1) = rotBox.col(1) + fitting_info.translation[1];
+    rotBox.col(2) = rotBox.col(2) + fitting_info.translation[2];
+
+    cv::Vec3d ret;
+    ret = rotBox.row(0);
+
+    cv::Vec3d pos(ret[0], ret[1], ret[2]);
+    return pos;
+  }
+
   int save_to_file() {
     if (false == boost::filesystem::exists(_root_path))
       return O2G_ERROR_INVALID_ROOT_PATH;
 
-    std::string path = _root_path + "\\profile";
+    std::string path = _root_path + "/profile";
     if (false == boost::filesystem::exists(path))
       boost::filesystem::create_directory(path);
-    std::string profile_path = path + "\\" + _profile_name;
+    std::string profile_path = path + "/" + _profile_name;
     if (true == boost::filesystem::exists(profile_path))
       return O2G_ERROR_ALREADY_EXIST_PROFILE;
 
@@ -154,9 +196,10 @@ public:
     char buf[255];
     for (int i = 0; i < _fitting_info.size(); ++i) {
       if (_fitting_info[i].is_saved == true) {
-        sprintf(buf, "%02d.png", i);
+        auto index = -1 * i + _fitting_info.size() - 1;
+        sprintf(buf, "%02d.png", index);
         file_name = buf;
-        if (false == cv::imwrite(profile_path + "\\" + file_name, _fitting_info[i].image)) {
+        if (false == cv::imwrite(profile_path + "/" + file_name, _fitting_info[i].image)) {
           // 디렉토리를 삭제한다.
           boost::system::error_code ec;
           boost::filesystem::remove_all(profile_path, ec);
@@ -185,16 +228,29 @@ public:
       return O2G_ERROR_FAIL_TO_SAVE_IMAGE;
     }
 
+    _fov = std::atan(_cp.cy / _cp.fy)*2.0f * 180 / M_PI;
     of << "fov = " << _fov << std::endl;
     of << "face_size = " << _face_size_hint << std::endl;
-    for (int i = 0; i < _fitting_info.size(); ++i) {
-      sprintf(buf, "r%02d = %.2f, %.2f, %.2f", i, _fitting_info[i].rotation[0],
-              _fitting_info[i].rotation[1], _fitting_info[i].rotation[2]);
+    for (int i = _fitting_info.size() - 1; i >= 0; --i) {
+      auto index = -1 * i + _fitting_info.size() - 1;
+
+      sprintf(buf, "r%02d = %.2f, %.2f, %.2f", index, 
+        _fitting_info[i].rotation[0]*1.f,
+        _fitting_info[i].rotation[1]*(-1.f), 
+        _fitting_info[i].rotation[2]*(-1.f));
       of << buf << std::endl;
     }
-    for (int i = 0; i < _fitting_info.size(); ++i) {
-      sprintf(buf, "t%02d = %.2f, %.2f, %.2f", i, _fitting_info[i].translation[0],
-              _fitting_info[i].translation[1], _fitting_info[i].translation[2]);
+    for (int i = _fitting_info.size() - 1; i >= 0; --i) {
+      auto index = -1 * i + _fitting_info.size() - 1;
+      auto &t = _fitting_info[i].translation;
+      auto &f = _fitting_info[i].face_feature_point;
+
+      auto gt = get_glass_center_world_position(_fitting_info[i]);
+
+      sprintf(buf, "t%02d = %.2f, %.2f, %.2f", index, 
+        gt[0]/10.0f, 
+        gt[1]*(-1.0f)/10.0f, 
+        gt[2]*(-1.0f)/10.0f +20.0f);
       of << buf << std::endl;
     }
 
