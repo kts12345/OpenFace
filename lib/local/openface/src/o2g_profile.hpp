@@ -65,6 +65,7 @@ public:
     // TODO snow : camera parameter 를 cx, cy, fx, fy 를
     //             아래 함수가 아닌 fov를 이용해서 만들도록 변경해야 함.
     _cp = camera_parameters(0, 0, 0, 0, cols, rows);
+    _cp = camera_parameters(0, 0, 0, 0, cols*0.25f, rows*0.25f);
 
     _profile_name = profile_name;
 
@@ -182,7 +183,8 @@ public:
     if (false == boost::filesystem::exists(_root_path))
       return O2G_ERROR_INVALID_ROOT_PATH;
 
-    std::string path = _root_path + "/profile";
+    std::string path = _root_path + "/0_user_profile";
+
     if (false == boost::filesystem::exists(path))
       boost::filesystem::create_directory(path);
     std::string profile_path = path + "/" + _profile_name;

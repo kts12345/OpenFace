@@ -75,6 +75,17 @@ int profile_image_start(
   return O2G_ERROR_SUCCESS;
 }
 
+cv::Mat crop(cv::Mat& input, int center_x, int center_y) {
+
+  auto len = std::min(input.rows, input.cols);
+  auto x = std::min(std::max(0, center_x - len/2), input.cols - len);
+  auto y = std::min(std::max(0, center_y - len/2), input.rows - len);
+
+  auto myROI = cv::Rect(x, y, len, len);
+
+  return input(myROI);
+}
+
 /// 이미지 제공
 int profile_image_update_file(
   char* profile_name,
@@ -95,55 +106,65 @@ int profile_image_update_file(
   if (captured_image.data == NULL)
     return O2G_ERROR_READ_IMAGE;
 
+  // 해상도를 1/5로 낮춰서 찾는다.
+  //auto croped = crop(captured_image, face_outline_center_x, face_outline_center_y);
+  auto& croped = captured_image;
+  cv::Mat resized_image;// = croped;
+  cv::resize(croped, resized_image, cv::Size(croped.cols*0.25f, croped.rows *0.25f), 0, 0, CV_INTER_NN);
+
   openface::FittingInfo info;
   // openface 에서 피팅 정보를 얻어옴
   // TODO snow : 200 머리크기 하드코딩 되어있는 것 제거
   //             glasses_fitting_info 하위에서 현재 사용하지 않고 있음.
-  openface::glasses_fitting_info(g_module.model(), captured_image,
+  openface::glasses_fitting_info(g_module.model(), resized_image,
                                  200, g_profile.cp(), { false }, info);
 
   // 머리가 과도하게 돌아가 있으면 이런 사진은 제외시킨다.
   float roll = info.rotate[2];
   float pitch = info.rotate[0];
   if (abs(roll) > 0.5 || abs(pitch) > 0.4) {
-    printf("roll: %.2f, pitch: %.2f", roll, pitch);
+    printf("drop roll: %.2f, pitch: %.2f \n", roll, pitch);
     return O2G_ERROR_SUCCESS;
   }
   // roate : roll 을 0 으로 맞춘다.
   bool roll_align = false;
   if (roll_align)
   {
-    float angle = roll * (180.0 / 3.14);
+    float angle = roll * (180.0f / 3.14159f);
     cv::Point center(captured_image.cols / 2, captured_image.rows / 2);
     cv::Mat mat_rotation = cv::getRotationMatrix2D(center, angle, 1);
     cv::warpAffine(captured_image, captured_image, mat_rotation, captured_image.size());
     info.rotate[2] = 0;
 
     // 회전시켰으므로 한번 더 구한다.
-    openface::glasses_fitting_info(g_module.model(), captured_image,
+    //croped = crop(captured_image, face_outline_center_x, face_outline_center_y);
+    croped = captured_image;
+    cv::resize(croped, resized_image, cv::Size(croped.cols * 0.25, croped.rows * 0.25), 0, 0, CV_INTER_NN);
+    openface::glasses_fitting_info(g_module.model(), resized_image,
       200, g_profile.cp(), { false }, info);
   }
 
-//  // TODO snow : debugging 용 코드 추후 주석처리해야함
-//  const int thickness = (int)std::ceil(2.0* ((double)captured_image.cols) / 640.0);
+  //// TODO snow : debugging 용 코드 추후 주석처리해야함
+  //const int thickness = (int)std::ceil(2.0* ((double)captured_image.cols) / 640.0);
 
-//  int count = 0, last_count = 0;
-//  auto draw_glasses = [&info, &thickness](GlassesPart part, cv::Mat out) {
-//    DrawGlassesBox(info,
-//                   cv::Scalar((1 - info.detection_certainty)*255.0, 0, info.detection_certainty * 255),
-//                   thickness,
-//                   g_profile.cp(),
-//                   part,
-//                   out);
-//  };
+  //int count = 0, last_count = 0;
+  //auto draw_glasses = [&info, &thickness](GlassesPart part, cv::Mat out) {
+  //  DrawGlassesBox(info,
+  //                 cv::Scalar((1 - info.detection_certainty)*255.0, 0, info.detection_certainty * 255),
+  //                 thickness,
+  //                 g_profile.cp(),
+  //                 part,
+  //                 out);
+  //};
+  //cv::Mat print_image;
+  //captured_image.copyTo(print_image);
 
-//  cv::Mat print_image;
-//  captured_image.copyTo(print_image);
+  //// 안경 그리기
+  //make_image(captured_image, info, draw_glasses, print_image);
 
-//  // 안경 그리기
-//  make_image(captured_image, info, draw_glasses, print_image);
 //  // feature points 그리기
 //  Draw(print_image, info.feature_points_2d);
+
 //  // 네모 그리기
 //  draw_box(info, g_profile.cp(), print_image);
 //  char buf[255];
@@ -158,7 +179,7 @@ int profile_image_update_file(
 
 //  // -- end TODO snow
 
-  g_profile.save_image(info, captured_image);
+  g_profile.save_image(info, croped);
 
   return O2G_ERROR_SUCCESS;
 }

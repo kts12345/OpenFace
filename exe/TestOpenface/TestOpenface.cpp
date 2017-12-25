@@ -256,7 +256,7 @@ int main(int argc, char **argv)
   std::string tmp_image = root_path + "\\a.bmp";
   std::string profile_name = "aa";
   boost::system::error_code ec;
-  boost::filesystem::remove_all(root_path+ "/profile/aa", ec);
+  boost::filesystem::remove_all(root_path+ "/09_user_profile/aa", ec);
   v = profile_image_start((char*)profile_name.c_str(), 0, (char*)tmp_image.c_str(), 1);
   printf("======== v:%d", v);
   while (!captured_image.empty()) {    
@@ -275,7 +275,7 @@ int main(int argc, char **argv)
     // save_image(info, print_image, radian_distance, min_radian, max_radian,
 		//            saved_info, saved_images);
     v = profile_image_update_file((char*)profile_name.c_str(),
-                              (char*)tmp_image.c_str(), 720/2, 1280/2);
+                              (char*)tmp_image.c_str(), 720/2, 500);
     printf("======== v:%d", v);
 
 
