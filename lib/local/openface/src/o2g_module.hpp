@@ -38,7 +38,8 @@ public:
       return O2G_ERROR_INVALID_ROOT_PATH;
 
     std::string model_path = root_path;
-    model_path += "/fitting_info/model/main_clm_general.txt";
+    model_path += "/9_o2/fitting_info/model/main_clm_general.txt";
+    //model_path = "/storage/emulated/0/o2/assets/09_o2/fitting_info/model/main_clm_general.txt";
     if (false == boost::filesystem::exists(model_path)) {
       return O2G_ERROR_NO_MODEL_INFO;
     }
