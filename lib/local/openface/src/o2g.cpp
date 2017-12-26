@@ -56,8 +56,8 @@ int profile_image_start(
 
   if (false == g_module.is_init())
     return O2G_ERROR_MODULE_NO_INIT;
-  if (true == g_profile.is_init())
-    return O2G_ERROR_PROFILE_ALREADY_INIT;
+  //if (true == g_profile.is_init())
+  //  return O2G_ERROR_PROFILE_ALREADY_INIT;
   if (false == boost::filesystem::exists(image_temp_path))
     return O2G_ERROR_NO_IMAGE;
 
@@ -191,6 +191,12 @@ int profile_image_final(
     return O2G_ERROR_MODULE_NO_INIT;
   if (false == g_profile.is_init())
     return O2G_ERROR_PROFILE_NO_INIT;
+
+  // temp 파일에 저장한다.
+  auto r = g_profile.save_to_temp_file();
+  if (O2G_ERROR_SUCCESS != r)
+    return r;
+
   if (false == g_profile.is_saved_all())
     return O2G_ERROR_FAIL_TO_MAKE_PROFILE;
 

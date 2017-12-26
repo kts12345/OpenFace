@@ -179,17 +179,34 @@ public:
     return pos;
   }
 
+  int save_to_temp_file() {
+    std::string path = _root_path + "/8_temp/0_user_profile";
+    return save_to_file(path);
+  }
+
   int save_to_file() {
+    std::string path = _root_path + "/0_user_profile";
+    return save_to_file(path);
+  }
+
+  int save_to_file(const std::string& path) {
     if (false == boost::filesystem::exists(_root_path))
       return O2G_ERROR_INVALID_ROOT_PATH;
-
-    std::string path = _root_path + "/0_user_profile";
 
     if (false == boost::filesystem::exists(path))
       boost::filesystem::create_directory(path);
     std::string profile_path = path + "/" + _profile_name;
-    if (true == boost::filesystem::exists(profile_path))
-      return O2G_ERROR_ALREADY_EXIST_PROFILE;
+
+    // 이미 있으면 모두 지운다.
+    if (true == boost::filesystem::exists(profile_path)) {
+      boost::system::error_code ec;
+      boost::filesystem::remove_all(profile_path, ec);
+      if (ec) {
+        printf("fail to delete directory");
+        printf(profile_path.c_str());
+        return O2G_ERROR_ALREADY_EXIST_PROFILE;
+      }
+    }
 
     // 이번 프로파일을 저장할 폴더를 만든다.
     boost::filesystem::create_directory(profile_path);
@@ -234,6 +251,8 @@ public:
     of << "fov = " << _fov << std::endl;
     of << "face_size = " << _face_size_hint << std::endl;
     for (int i = _fitting_info.size() - 1; i >= 0; --i) {
+      if (_fitting_info[i].is_saved == false)
+        continue;
       auto index = -1 * i + _fitting_info.size() - 1;
 
       sprintf(buf, "r%02d = %.2f, %.2f, %.2f", index, 
@@ -243,6 +262,8 @@ public:
       of << buf << std::endl;
     }
     for (int i = _fitting_info.size() - 1; i >= 0; --i) {
+      if (_fitting_info[i].is_saved == false)
+        continue;
       auto index = -1 * i + _fitting_info.size() - 1;
       auto &t = _fitting_info[i].translation;
       auto &f = _fitting_info[i].face_feature_point;
