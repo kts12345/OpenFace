@@ -106,11 +106,11 @@ int profile_image_update_file(
   if (captured_image.data == NULL)
     return O2G_ERROR_READ_IMAGE;
 
-  // 해상도를 1/5로 낮춰서 찾는다.
+  // 해상도를 1/2로 낮춰서 찾는다.
   //auto croped = crop(captured_image, face_outline_center_x, face_outline_center_y);
   auto& croped = captured_image;
   cv::Mat resized_image;// = croped;
-  cv::resize(croped, resized_image, cv::Size(croped.cols*0.25f, croped.rows *0.25f), 0, 0, CV_INTER_NN);
+  cv::resize(croped, resized_image, cv::Size(croped.cols*0.5f, croped.rows *0.5f), 0, 0, CV_INTER_NN);
 
   openface::FittingInfo info;
   // openface 에서 피팅 정보를 얻어옴
@@ -139,7 +139,7 @@ int profile_image_update_file(
     // 회전시켰으므로 한번 더 구한다.
     //croped = crop(captured_image, face_outline_center_x, face_outline_center_y);
     croped = captured_image;
-    cv::resize(croped, resized_image, cv::Size(croped.cols * 0.25, croped.rows * 0.25), 0, 0, CV_INTER_NN);
+    cv::resize(croped, resized_image, cv::Size(croped.cols * 0.5, croped.rows * 0.5), 0, 0, CV_INTER_NN);
     openface::glasses_fitting_info(g_module.model(), resized_image,
       200, g_profile.cp(), { false }, info);
   }

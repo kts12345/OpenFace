@@ -65,7 +65,7 @@ public:
     // TODO snow : camera parameter 를 cx, cy, fx, fy 를
     //             아래 함수가 아닌 fov를 이용해서 만들도록 변경해야 함.
     _cp = camera_parameters(0, 0, 0, 0, cols, rows);
-    _cp = camera_parameters(0, 0, 0, 0, cols*0.25f, rows*0.25f);
+    _cp = camera_parameters(0, 0, 0, 0, cols*0.5f, rows*0.5f);
 
     _profile_name = profile_name;
 
@@ -286,8 +286,8 @@ private:
   static const int s_image_count = 15;
 
   // 각도 : 최소, 최대 각도
-  static constexpr float s_min_radian = -0.5;
-  static constexpr float s_max_radian = 0.5;
+  static constexpr float s_min_radian = -0.4;
+  static constexpr float s_max_radian = 0.4;
 
   // 15개 이미지가 이미지 사이에 가지는 각도 거리
   static constexpr float s_radian_distance = (s_max_radian - s_min_radian) /
