@@ -87,6 +87,15 @@ public:
   // profile_update 가 호출함.
   void save_image(const openface::FittingInfo& info, cv::Mat image) {
     ++_frame_count;
+
+    // 스무쓰한 영상을 얻기 위해 추가. by kts123. 
+    // 별 문제 없다면 아래와 같은 패턴으로 저장될 것이라서
+    // is_saved_all()을 호출하면 가운데 패턴만 얻어서 들쭉날쭉이 없을 것이다.
+    // <<<<<<<<             (중앙에서 왼쪽으로 돌린 후)  <- 이때 저장한 것은 
+    // >>>>>>>>>>>>>>>>     (방향 틀어서 오른쪽으로 돌린 후) <- 이때 덮어 쓴다.
+    //        <<<<<<<<<     (방향 틀어서 왼쪽으로 돌린다)  <- 이때는 저정하지 말아야 한다.
+    if (is_saved_all())
+      return;
       
     // output the tracked video
     // TODO snow : 디버깅 코드 주석처리되어야 함.
@@ -96,11 +105,11 @@ public:
     //}
 
     auto radian = info.rotate[1];
-  	if (radian < s_min_radian - s_radian_distance ||
-        radian > s_max_radian + s_radian_distance)
+  	if (radian < s_min_radian - 0.5*s_radian_distance||
+        radian > s_max_radian + 0.5*s_radian_distance)
   		return;
 
-  	int index = (radian - s_min_radian) / s_radian_distance;
+  	int index = (radian - s_min_radian) / s_radian_distance + 0.5f;
     // 이런 일은 생기지 않지만.. 한 번 더 남겨둔다.
   	if (index < 0 || index > (_fitting_info.size() - 1)) {
   	  printf("something wrong, in index");
@@ -109,16 +118,16 @@ public:
     // TODO snow : 대충 정한 4초 어떻게 해야할 듯.
     // 중앙을 제외하고는
     // 너무 오래(4초 이상) 지난 것으로는 엎어치지 않는다.
-    auto cur = std::chrono::system_clock::now();
-    if (index != (_fitting_info.size() / 2) &&
-        _fitting_info[index].is_saved == true &&
-        std::chrono::duration_cast<std::chrono::seconds>(cur - _fitting_info[index].saved_time).count() > 4)
-      return;
+    //auto cur = std::chrono::system_clock::now();
+    //if (index != (_fitting_info.size() / 2) &&
+    //    _fitting_info[index].is_saved == true &&
+    //    std::chrono::duration_cast<std::chrono::seconds>(cur - _fitting_info[index].saved_time).count() > 4)
+    //  return;
 
     float cur_index_radian = s_min_radian + index * (s_radian_distance);
     auto saved_radian = _fitting_info[index].rotation[1];
-    if (_fitting_info[index].is_saved == false ||
-        abs(saved_radian - cur_index_radian) > abs(radian - cur_index_radian)) {
+   // if (_fitting_info[index].is_saved == false ||
+   //     abs(saved_radian - cur_index_radian) > abs(radian - cur_index_radian)) {
       image.copyTo(_fitting_info[index].image);
       _fitting_info[index].is_saved = true;
       _fitting_info[index].rotation = info.rotate;
@@ -126,7 +135,7 @@ public:
       _fitting_info[index].face_feature_point = info.face_feature_point;
       _fitting_info[index].saved_time = std::chrono::system_clock::now();
       _fitting_info[index].frame_count = _frame_count;
-    }
+   // }
   }
 
   openface::CameraParameter& cp() {

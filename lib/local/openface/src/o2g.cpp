@@ -120,29 +120,29 @@ int profile_image_update_file(
                                  200, g_profile.cp(), { false }, info);
 
   // 머리가 과도하게 돌아가 있으면 이런 사진은 제외시킨다.
-  float roll = info.rotate[2];
-  float pitch = info.rotate[0];
-  if (abs(roll) > 0.5 || abs(pitch) > 0.4) {
-    printf("drop roll: %.2f, pitch: %.2f \n", roll, pitch);
-    return O2G_ERROR_SUCCESS;
-  }
+  //float roll = info.rotate[2];
+  //float pitch = info.rotate[0];
+  //if (abs(roll) > 0.5 || abs(pitch) > 0.4) {
+  //  printf("drop roll: %.2f, pitch: %.2f \n", roll, pitch);
+  //  return O2G_ERROR_SUCCESS;
+  //}
   // roate : roll 을 0 으로 맞춘다.
-  bool roll_align = false;
-  if (roll_align)
-  {
-    float angle = roll * (180.0f / 3.14159f);
-    cv::Point center(captured_image.cols / 2, captured_image.rows / 2);
-    cv::Mat mat_rotation = cv::getRotationMatrix2D(center, angle, 1);
-    cv::warpAffine(captured_image, captured_image, mat_rotation, captured_image.size());
-    info.rotate[2] = 0;
+  //bool roll_align = false;
+  //if (roll_align)
+  //{
+  //  float angle = roll * (180.0f / 3.14159f);
+  //  cv::Point center(captured_image.cols / 2, captured_image.rows / 2);
+  //  cv::Mat mat_rotation = cv::getRotationMatrix2D(center, angle, 1);
+  //  cv::warpAffine(captured_image, captured_image, mat_rotation, captured_image.size());
+  //  info.rotate[2] = 0;
 
-    // 회전시켰으므로 한번 더 구한다.
-    //croped = crop(captured_image, face_outline_center_x, face_outline_center_y);
-    croped = captured_image;
-    cv::resize(croped, resized_image, cv::Size(croped.cols * 0.5, croped.rows * 0.5), 0, 0, CV_INTER_NN);
-    openface::glasses_fitting_info(g_module.model(), resized_image,
-      200, g_profile.cp(), { false }, info);
-  }
+  //  // 회전시켰으므로 한번 더 구한다.
+  //  //croped = crop(captured_image, face_outline_center_x, face_outline_center_y);
+  //  croped = captured_image;
+  //  cv::resize(croped, resized_image, cv::Size(croped.cols * 0.5, croped.rows * 0.5), 0, 0, CV_INTER_NN);
+  //  openface::glasses_fitting_info(g_module.model(), resized_image,
+  //    200, g_profile.cp(), { false }, info);
+  //}
 
   //// TODO snow : debugging 용 코드 추후 주석처리해야함
   //const int thickness = (int)std::ceil(2.0* ((double)captured_image.cols) / 640.0);

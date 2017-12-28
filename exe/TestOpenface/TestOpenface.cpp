@@ -261,7 +261,7 @@ int main(int argc, char **argv)
   printf("======== v:%d", v);
   while (!captured_image.empty()) {    
 
-    if (count % 3 != 0) {
+    if (count % 2 != 0) {
       count++;
       continue;
     }

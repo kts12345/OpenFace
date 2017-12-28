@@ -117,19 +117,19 @@ public:
 
 	// CNN layers for each view
 	// view -> layer -> input maps -> kernels
-	vector<vector<vector<vector<cv::Mat_<float> > > > > cnn_convolutional_layers;
+	vector<vector<vector<vector<cv::Mat_<float> > > > >               cnn_convolutional_layers;
 	// Bit ugly with so much nesting, but oh well
-	vector<vector<vector<vector<pair<int, cv::Mat_<double> > > > > > cnn_convolutional_layers_dft;
-	vector<vector<vector<float > > > cnn_convolutional_layers_bias;
-	vector< vector<int> > cnn_subsampling_layers;
-	vector< vector<cv::Mat_<float> > > cnn_fully_connected_layers_weights;
-	vector< vector<float > > cnn_fully_connected_layers_bias;
+	vector<vector<vector<vector<pair<int, cv::Mat_<double> > > > > >  cnn_convolutional_layers_dft;
+	vector<vector<vector<float > > >                                  cnn_convolutional_layers_bias;
+	vector< vector<int> >                                             cnn_subsampling_layers;
+	vector< vector<cv::Mat_<float> > >                                cnn_fully_connected_layers_weights;
+	vector< vector<float > >                                          cnn_fully_connected_layers_bias;
 	// OLD CNN: 0 - convolutional, 1 - subsampling, 2 - fully connected
 	// NEW CNN: 0 - convolutional, 1 - max pooling (2x2 stride 2), 2 - fully connected, 3 - relu, 4 - sigmoid
-	vector<vector<int> > cnn_layer_types;
+	vector<vector<int> >                                              cnn_layer_types;
 	
 	// Extra params for the new CNN
-	vector< vector<cv::Mat_<float>  > > cnn_fully_connected_layers_biases;
+	vector< vector<cv::Mat_<float>  > >                               cnn_fully_connected_layers_biases;
 
 	//==========================================
 
