@@ -257,11 +257,12 @@ int main(int argc, char **argv)
   std::string profile_name = "aa";
   boost::system::error_code ec;
   boost::filesystem::remove_all(root_path+ "/09_user_profile/aa", ec);
-  v = profile_image_start((char*)profile_name.c_str(), 0, (char*)tmp_image.c_str(), 1);
+  v = profile_image_start((char*)profile_name.c_str(), 0, 1);
   printf("======== v:%d", v);
   while (!captured_image.empty()) {    
 
-    if (count % 2 != 0) {
+    // 일단 모든 프레임을 다 테스트 한다.
+    if (count % 1 != 0) {
       count++;
       continue;
     }
@@ -276,6 +277,7 @@ int main(int argc, char **argv)
 		//            saved_info, saved_images);
     v = profile_image_update_file((char*)profile_name.c_str(),
                               (char*)tmp_image.c_str(), 720/2, 500);
+
     printf("======== v:%d", v);
 
 

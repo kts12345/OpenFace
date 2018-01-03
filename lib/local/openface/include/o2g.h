@@ -105,14 +105,10 @@ extern "C" {
   /// @param profile_name : profile 이름
   ///                       1개 동영상이 촬영되는 동안 계속 같은 이름을 제공한다.
   /// @param camera_fov : camera 의 fov
-  /// @param image_temp_path : 사진을 임의의 경로에 저장한다음 그 경로를 라이브러리에 제공한다.
-  ///                          여기에는 그 임시 파일이 저장된 경로이다.
-  ///                          이 함수가 리턴한 다음에는 해당 파일을 삭제하거나 업데이트해도 무방하다.
   /// @param face_size_hint : 얼굴 크기 (대:0 / 중:1 / 소:2) 에 해당한다.
   int profile_image_start(
     char* profile_name,
     float camera_fov,
-    char* image_temp_path,
     int face_size_hint);
 
   /// 이미지 제공
@@ -144,6 +140,18 @@ extern "C" {
     int face_outline_center_y
   );
 
+  
+  /// 이미지 제공 (메모리 파일 버전)
+  /// 위의 profile_image_updatge_file 과 동일. 
+  /// 단, 파일 경로가 아니라 메모리 buffer로 전달 받음
+  int profile_image_update_memory_file(
+    char* profile_name,
+    char* image_buffer,
+    int   image_buffer_size,
+    int face_outline_center_x,
+    int face_outline_center_y);
+
+
   /// 피팅 사진 제공 완료
   ///
   /// @returns : 안경 피팅에 사용하기 위한 사진이 모두 얻어졌는지 여부
@@ -165,7 +173,18 @@ extern "C" {
   int profile_image_save(
     char* profile_name);
 
+  //#################### 디버그 함수들 ##############################//
 
+  /// 이미지 제공하고 align 정보 얻기 
+  int profile_get_pose(
+    char* profile_name,
+    char* image_buffer,
+    int   image_buffer_size,
+    int face_outline_center_x,
+    int face_outline_center_y,
+    float* tx, float* ty, float* tz,
+    float* rx, float* ry, float* rz,
+    float* fov);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

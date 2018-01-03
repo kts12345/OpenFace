@@ -213,12 +213,12 @@ void O2FACE_CALLCONV  glasses_fitting_info_imple(void* model,
   info.face_feature_point[1] = feature_point.at<double>(1);
   info.face_feature_point[2] = feature_point.at<double>(2);
   // face outline
-  info.face_outline_feature_points = get_face_outline(*model2->model);
+  //info.face_outline_feature_points = get_face_outline(*model2->model);
   // nose, 29, 32, 36 : 1부터 시작하는 Index
-  info.nose_feature_points = get_landmark_2d(*model2->model, { 28, 31, 35, 28 });
+  //info.nose_feature_points = get_landmark_2d(*model2->model, { 28, 31, 35, 28 });
 
   // 전체 2D feature point
-  info.feature_points_2d = model2->model->detected_landmarks.reshape(1, 2).t();
+  //info.feature_points_2d = model2->model->detected_landmarks.reshape(1, 2).t();
 }
 
 

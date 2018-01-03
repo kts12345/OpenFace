@@ -50,26 +50,20 @@ public:
     _image_rows = 0;
     _fov = 0;
   }
+ 
 
-  void init(std::string root_path, std::string profile_name, int cols, int rows,
-            float camera_fov, int face_size_hint) {
+  void init(std::string root_path, std::string profile_name,
+    float camera_fov, int face_size_hint) {
     _root_path = root_path;
     _fitting_info.clear();
     _fitting_info.resize(s_image_count);
-    _image_cols = cols;
-    _image_rows = rows;
     _fov = camera_fov;
     _face_size_hint = face_size_hint;
     _frame_count = 0;
 
-    // TODO snow : camera parameter 를 cx, cy, fx, fy 를
-    //             아래 함수가 아닌 fov를 이용해서 만들도록 변경해야 함.
-    _cp = camera_parameters(0, 0, 0, 0, cols, rows);
-    _cp = camera_parameters(0, 0, 0, 0, cols*0.5f, rows*0.5f);
-
     _profile_name = profile_name;
 
-    
+
     // TODO snow : 디버깅 코드 주석처리되어야 함.
     // std::string output_codec = "DIVX";
     // _video_writer = cv::VideoWriter(_root_path + "/b.avi",
@@ -96,7 +90,7 @@ public:
     //        <<<<<<<<<     (방향 틀어서 왼쪽으로 돌린다)  <- 이때는 저정하지 말아야 한다.
     if (is_saved_all())
       return;
-      
+
     // output the tracked video
     // TODO snow : 디버깅 코드 주석처리되어야 함.
     //if (_video_writer.isOpened())
@@ -105,14 +99,14 @@ public:
     //}
 
     auto radian = info.rotate[1];
-  	if (radian < s_min_radian - 0.5*s_radian_distance||
-        radian > s_max_radian + 0.5*s_radian_distance)
-  		return;
+    if (radian < s_min_radian - 0.25*s_radian_distance ||
+      radian > s_max_radian + 0.25*s_radian_distance)
+      return;
 
-  	int index = (radian - s_min_radian) / s_radian_distance + 0.5f;
+    int index = (radian - s_min_radian) / s_radian_distance + 0.5f;
     // 이런 일은 생기지 않지만.. 한 번 더 남겨둔다.
-  	if (index < 0 || index > (_fitting_info.size() - 1)) {
-  	  printf("something wrong, in index");
+    if (index < 0 || index >(_fitting_info.size() - 1)) {
+      printf("something wrong, in index");
       return;
     }
     // TODO snow : 대충 정한 4초 어떻게 해야할 듯.
@@ -124,21 +118,28 @@ public:
     //    std::chrono::duration_cast<std::chrono::seconds>(cur - _fitting_info[index].saved_time).count() > 4)
     //  return;
 
-    float cur_index_radian = s_min_radian + index * (s_radian_distance);
-    auto saved_radian = _fitting_info[index].rotation[1];
-   // if (_fitting_info[index].is_saved == false ||
+    //float cur_index_radian = s_min_radian + index * (s_radian_distance);
+    //auto saved_radian = _fitting_info[index].rotation[1];
+    //if (_fitting_info[index].is_saved == false) {// ||
    //     abs(saved_radian - cur_index_radian) > abs(radian - cur_index_radian)) {
       image.copyTo(_fitting_info[index].image);
       _fitting_info[index].is_saved = true;
       _fitting_info[index].rotation = info.rotate;
+      _fitting_info[index].rotation[1] *= _yaw_scale;
       _fitting_info[index].translation = info.translation;
       _fitting_info[index].face_feature_point = info.face_feature_point;
       _fitting_info[index].saved_time = std::chrono::system_clock::now();
       _fitting_info[index].frame_count = _frame_count;
-   // }
+    //}
   }
 
-  openface::CameraParameter& cp() {
+  openface::CameraParameter& cp(int cols = -1, int rows = -1) {
+    if (cols == -1 || rows == -1)
+      return _cp;
+
+    if (_image_cols != cols || _image_rows != rows) {
+      _cp = camera_parameters(0, 0, 0, 0, cols, rows);
+    }
     return _cp;
   }
   int frame_count() {
@@ -153,23 +154,21 @@ public:
     return true;
   }
 
-  cv::Vec3d get_glass_center_world_position(const FittingInfo& fitting_info) {
-
-    //double glasses_center[] = { 0, -10, -5 }; // 기준
-    double glasses_center[] = { 0, +1.5f, -5 };
+  static cv::Vec3d obj2world(const cv::Vec3d& obj_point,
+    const cv::Vec3d& rotation,
+    const cv::Vec3d& translation) {
 
     double boxVerts[] = { 0, 0, 0 };
 
-    cv::Mat_<double> box = cv::Mat(10, 3, CV_64F, boxVerts).clone();
-    for (auto i = 0; i < 3; ++i)
-    {
+    cv::Mat_<double> box = cv::Mat(1, 3, CV_64F, boxVerts).clone();
+    for (auto i = 0; i < 3; ++i) {
       auto col = box.col(i);
-      col = col + (fitting_info.face_feature_point[i] + glasses_center[i]);
+      col = col + (obj_point[i]);// +glasses_center[i]);
     }
 
-    cv::Matx33d rot = Euler2RotationMatrix(cv::Vec3d(fitting_info.rotation[0],
-      fitting_info.rotation[1],
-      fitting_info.rotation[2]));
+    cv::Matx33d rot = Euler2RotationMatrix(
+      cv::Vec3d(rotation[0], rotation[1], rotation[2]));
+
     cv::Mat_<double> rotBox;
 
     // Rotate the box
@@ -177,9 +176,9 @@ public:
     rotBox = rotBox.t();
 
     // Move the bounding box to head position
-    rotBox.col(0) = rotBox.col(0) + fitting_info.translation[0];
-    rotBox.col(1) = rotBox.col(1) + fitting_info.translation[1];
-    rotBox.col(2) = rotBox.col(2) + fitting_info.translation[2];
+    rotBox.col(0) = rotBox.col(0) + translation[0];
+    rotBox.col(1) = rotBox.col(1) + translation[1];
+    rotBox.col(2) = rotBox.col(2) + translation[2];
 
     cv::Vec3d ret;
     ret = rotBox.row(0);
@@ -187,6 +186,8 @@ public:
     cv::Vec3d pos(ret[0], ret[1], ret[2]);
     return pos;
   }
+
+
 
   int save_to_temp_file() {
     std::string path = _root_path + "/8_temp/0_user_profile";
@@ -239,7 +240,7 @@ public:
           }
           return O2G_ERROR_FAIL_TO_SAVE_IMAGE;
         }
-	    }
+      }
     }
     std::ofstream of;
     of.open(profile_path + "/config.txt", std::ios::out | std::ios::app);
@@ -256,33 +257,33 @@ public:
       return O2G_ERROR_FAIL_TO_SAVE_IMAGE;
     }
 
-    _fov = std::atan(_cp.cy / _cp.fy)*2.0f * 180 / M_PI;
-    of << "fov = " << _fov << std::endl;
+    of << "fov = " << fov() << std::endl;
     of << "face_size = " << _face_size_hint << std::endl;
+    of << "face_count = " << s_image_count << std::endl;
+
     for (int i = _fitting_info.size() - 1; i >= 0; --i) {
       if (_fitting_info[i].is_saved == false)
         continue;
       auto index = -1 * i + _fitting_info.size() - 1;
 
-      sprintf(buf, "r%02d = %.2f, %.2f, %.2f", index, 
-        _fitting_info[i].rotation[0]*1.f,
-        _fitting_info[i].rotation[1]*(-1.f), 
-        _fitting_info[i].rotation[2]*(-1.f));
+      sprintf(buf, "r%02d = %.2f, %.2f, %.2f", index,
+        _fitting_info[i].rotation[0] * 1.f,
+        _fitting_info[i].rotation[1] * (-1.f),
+        _fitting_info[i].rotation[2] * (-1.f));
       of << buf << std::endl;
     }
     for (int i = _fitting_info.size() - 1; i >= 0; --i) {
       if (_fitting_info[i].is_saved == false)
         continue;
       auto index = -1 * i + _fitting_info.size() - 1;
-      auto &t = _fitting_info[i].translation;
-      auto &f = _fitting_info[i].face_feature_point;
 
-      auto gt = get_glass_center_world_position(_fitting_info[i]);
+      auto& fi = _fitting_info[i];
+      auto gt = obj2world(fi.face_feature_point, fi.rotation, fi.translation);
 
-      sprintf(buf, "t%02d = %.2f, %.2f, %.2f", index, 
-        gt[0]/10.0f, 
-        gt[1]*(-1.0f)/10.0f, 
-        gt[2]*(-1.0f)/10.0f +20.0f);
+      sprintf(buf, "t%02d = %.2f, %.2f, %.2f", index,
+        gt[0] / 10.0f,
+        gt[1] * (-1.0f) / 10.0f,
+        gt[2] * (-1.0f) / 10.0f + 20.0f);
       of << buf << std::endl;
     }
 
@@ -290,17 +291,21 @@ public:
     return O2G_ERROR_SUCCESS;
   }
 
+  float fov() { 
+    return std::atan(_cp.cy / _cp.fy)*2.0f * 180 / M_PI;
+  }
+
 private:
   // 저장할 이미지 개수
   static const int s_image_count = 15;
 
   // 각도 : 최소, 최대 각도
-  static constexpr float s_min_radian = -0.4;
-  static constexpr float s_max_radian = 0.4;
+  static constexpr float s_min_radian = -0.35;
+  static constexpr float s_max_radian = 0.35;
 
   // 15개 이미지가 이미지 사이에 가지는 각도 거리
   static constexpr float s_radian_distance = (s_max_radian - s_min_radian) /
-                                             (s_image_count - 1.0f);
+    (s_image_count - 1.0f);
 
   // module 의 root path
   std::string _root_path;
@@ -311,9 +316,19 @@ private:
   // image_count개 이미지의 피팅정보
   std::vector<FittingInfo> _fitting_info;
 
+  // 회전값 스케일 튜닝
+  double _yaw_scale = 1.05;
+
   // 카메라 파라미터
   openface::CameraParameter _cp;
 
+  // 얼마나 줄여서 align 정보 찾을 지 
+  int   _fitting_width = 256;
+public:
+  float calc_scale(int rows) { return (_fitting_width * 1.0f) / (rows * 1.0f); }
+  float yaw_scale() { return _yaw_scale; }
+
+private:
   int _image_cols;
   int _image_rows;
   float _fov;

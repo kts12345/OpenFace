@@ -42,6 +42,8 @@ struct FittingInfo
   /// 이 값이 너무 낮으면 안경을 그리지 않는 편이 더 나을 것이다.
   double detection_certainty;
 
+  /// 최적화를 위해서 아래 내용은 지금은 채우지 않음.
+
   /// 얼굴 윤곽 2D feature point 좌표
   cv::Mat_<double> face_outline_feature_points;
 
