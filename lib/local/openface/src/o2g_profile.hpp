@@ -325,7 +325,7 @@ private:
   // 얼마나 줄여서 align 정보 찾을 지 
   int   _fitting_width = 256;
 public:
-  float calc_scale(int rows) { return (_fitting_width * 1.0f) / (rows * 1.0f); }
+  float calc_scale(int cols) { return (_fitting_width * 1.0f) / (cols * 1.0f); }
   float yaw_scale() { return _yaw_scale; }
 
 private:

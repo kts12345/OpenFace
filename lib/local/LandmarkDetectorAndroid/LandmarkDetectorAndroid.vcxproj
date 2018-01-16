@@ -140,6 +140,12 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)lib\local\LandmarkDetector;$(SolutionDir)lib\local\LandmarkDetector\src;$(SolutionDir)lib\local\LandmarkDetector\include;$(SolutionDir)lib\3rdParty\OpenCV3.1\include\opencv;$(SolutionDir)lib\3rdParty\OpenCV3.1\include;$(SolutionDir)lib\3rdParty\tbb\include;$(SolutionDir)lib\3rdParty\dlib\include\dlib\..;$(SolutionDir)lib\3rdParty\boost;$(SolutionDir)lib\3rdParty\boost\boost</AdditionalIncludeDirectories>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ExceptionHandling>Enabled</ExceptionHandling>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <CLanguageStandard>c11</CLanguageStandard>
+      <CppLanguageStandard>c++1y</CppLanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">

@@ -67,13 +67,19 @@ int profile_image_start(
   return O2G_ERROR_SUCCESS;
 }
 
-cv::Mat crop(cv::Mat& input, int center_x, int center_y) {
+cv::Mat crop(const cv::Mat& input, int center_x, int center_y) {
 
-  auto len = std::min(input.rows, input.cols);
-  auto x = std::min(std::max(0, center_x - len/2), input.cols - len);
-  auto y = std::min(std::max(0, center_y - len/2), input.rows - len);
+  //auto len = std::min(input.rows, input.cols);
+  //auto x = std::min(std::max(0, center_x - len/2), input.cols - len);
+  //auto y = std::min(std::max(0, center_y - len/2), input.rows - len);
+  //auto myROI = cv::Rect(x, y, len, len);
 
-  auto myROI = cv::Rect(x, y, len, len);
+  auto len_x = input.cols;
+  auto x = 0;
+  auto y = input.rows * 0.15f;
+  auto len_y = std::min((int)(input.rows * 0.7f), input.cols);
+
+  auto myROI = cv::Rect((int)x, (int)y, (int)len_x, (int)len_y);
 
   return input(myROI);
 }
@@ -84,11 +90,14 @@ static int image_update_imple(
   int face_outline_center_x,
   int face_outline_center_y) {
 
-  //auto croped = crop(captured_image, face_outline_center_x, face_outline_center_y);
-  auto& croped = captured_image;
+  auto croped = crop(captured_image, face_outline_center_x, face_outline_center_y);
+  //auto& croped = captured_image;
   cv::Mat resized_image;// = croped;
-  auto scale = g_profile.calc_scale(croped.rows);
+  auto scale = g_profile.calc_scale(croped.cols);
   cv::resize(croped, resized_image, cv::Size(croped.cols * scale, croped.rows * scale), 0, 0, CV_INTER_NN);
+
+  //cv::Mat croped = captured_image;
+  //cv::Mat resized_image = captured_image;
 
   openface::FittingInfo info;
   // openface 에서 피팅 정보를 얻어옴

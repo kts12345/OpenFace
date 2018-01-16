@@ -15,12 +15,12 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EF037C3B-338A-4215-B5CF-19F0F346B4ED}.Release|ARM.ActiveCfg = Release|ARM
 		{EF037C3B-338A-4215-B5CF-19F0F346B4ED}.Release|ARM.Build.0 = Release|ARM
-		{EF037C3B-338A-4215-B5CF-19F0F346B4ED}.Release|ARM64.ActiveCfg = Release|ARM
-		{EF037C3B-338A-4215-B5CF-19F0F346B4ED}.Release|ARM64.Build.0 = Release|ARM
+		{EF037C3B-338A-4215-B5CF-19F0F346B4ED}.Release|ARM64.ActiveCfg = Release|ARM64
+		{EF037C3B-338A-4215-B5CF-19F0F346B4ED}.Release|ARM64.Build.0 = Release|ARM64
 		{A8633513-9159-41BC-B2C5-A853994AD913}.Release|ARM.ActiveCfg = Release|ARM
 		{A8633513-9159-41BC-B2C5-A853994AD913}.Release|ARM.Build.0 = Release|ARM
-		{A8633513-9159-41BC-B2C5-A853994AD913}.Release|ARM64.ActiveCfg = Release|ARM
-		{A8633513-9159-41BC-B2C5-A853994AD913}.Release|ARM64.Build.0 = Release|ARM
+		{A8633513-9159-41BC-B2C5-A853994AD913}.Release|ARM64.ActiveCfg = Release|ARM64
+		{A8633513-9159-41BC-B2C5-A853994AD913}.Release|ARM64.Build.0 = Release|ARM64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
